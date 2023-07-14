@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "953147600105",
+    "project_id": "my-groovy-recipes",
+    "storage_bucket": "my-groovy-recipes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953147600105:android:ed59141b9eac244d521478",
+        "android_client_info": {
+          "package_name": "com.example.my_groovy_recipes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "953147600105-g7a67j2d60pnrf0u3o5t8i5es03l5el1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.my_groovy_recipes",
+            "certificate_hash": "8febc7cf26d3abf54e45ec45ddff0f1552c7f9cd"
+          }
+        },
+        {
+          "client_id": "953147600105-7ugh0r796pl2asefd3hvdk3oobq3qna4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrnGoA0F1aFoxN9abBB1Iu3aLIpoK86cQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "953147600105-7ugh0r796pl2asefd3hvdk3oobq3qna4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "953147600105-1f06cfu6lm79lg71fru812fsra1cn7g7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myGroovyRecipes.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
