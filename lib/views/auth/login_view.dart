@@ -6,7 +6,8 @@ import 'package:my_groovy_recipes/components/textfields/email_textfield.dart';
 import 'package:my_groovy_recipes/components/buttons/full_width_textbutton.dart';
 import 'package:my_groovy_recipes/components/textfields/password_textfield.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
-import 'package:my_groovy_recipes/utils/error_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
+
 import 'package:my_groovy_recipes/views/auth/forgot_pasword_page.dart';
 
 class LoginView extends StatefulWidget {
@@ -62,13 +63,13 @@ class _LoginViewState extends State<LoginView> {
       if (context.mounted) Navigator.pop(context);
       if (e.code == 'user-not-found') {
         // show error dialog
-        showErrorDialog(context: context, message: "Wrong credentials");
+        showErrorDialog(context, "Wrong credentials");
       } else if (e.code == 'wrong-password') {
         // show error dialog
-        showErrorDialog(context: context, message: "Wrong credentials");
+        showErrorDialog(context, "Wrong credentials");
       } else if (e.code == 'invalid-email') {
         // show error dialog
-        showErrorDialog(context: context, message: "Invalid email address");
+        showErrorDialog(context, "Invalid email address");
       }
     } catch (e) {
       // error occured

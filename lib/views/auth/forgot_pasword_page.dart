@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/password_reset_sent_dialog.dart';
 import 'package:my_groovy_recipes/components/textfields/email_textfield.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
-import 'package:my_groovy_recipes/utils/error_dialog.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
@@ -42,25 +43,29 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: _emailController.text);
 
-      // dismiss the loading animation
       if (context.mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        // dismiss the loading animation
+        Navigator.pop(context);
+
+        // show the user a dialog informing him or her that a password reset link has been sent
+        await showPasswordResetLinkSentDialog(context);
+
+        // navigate back to login page
+        if (context.mounted) Navigator.pop(context);
       }
     } on FirebaseAuthException catch (e) {
       // error occured
       Logger().e(e);
       // dismiss loading animation
       if (context.mounted) Navigator.pop(context);
+      // show error dialog
       if (e.code == 'user-not-found') {
-        // show error dialog
         showErrorDialog(
-            context: context,
-            message: "Oops! We did not find any user with that email");
+            context, "Oops! We did not find any user with that email");
       } else if (e.code == 'invalid-email') {
-        // show error dialog
-        showErrorDialog(context: context, message: "Invalid email address");
+        showErrorDialog(context, "Invalid email address");
       } else {
-        showErrorDialog(context: context, message: e.message.toString());
+        showErrorDialog(context, e.message.toString());
       }
     }
   }

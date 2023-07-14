@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
-import 'package:my_groovy_recipes/utils/error_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
 import 'package:my_groovy_recipes/views/recipe/my_recipes_view.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -78,9 +78,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       Logger().e(e);
       if (e.code == 'too-many-requests') {
         // show error dialog
-        showErrorDialog(
-            context: context,
-            message: "Too many requests! Try again in a minute.");
+        showErrorDialog(context, "Too many requests! Try again in a minute.");
       }
     }
   }

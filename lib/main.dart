@@ -23,12 +23,24 @@ class MyApp extends StatelessWidget {
       navigatorKey: _navigatorKey,
       title: 'My Groovy Recipes',
       theme: ThemeData(
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            color: const CustomColors().yellow,
+          ),
+          primarySwatch: Colors.brown,
           primaryColor: const CustomColors().beige,
           useMaterial3: true,
           appBarTheme: AppBarTheme(
             scrolledUnderElevation: 0,
             elevation: 0,
             backgroundColor: const CustomColors().beige,
+          ),
+          dialogTheme: const DialogTheme(
+            elevation: 0,
+          ),
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: Colors.brown,
+            selectionColor: Colors.brown,
+            selectionHandleColor: Colors.brown,
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(

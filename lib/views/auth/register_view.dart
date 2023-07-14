@@ -6,7 +6,7 @@ import 'package:my_groovy_recipes/components/textfields/email_textfield.dart';
 import 'package:my_groovy_recipes/components/buttons/full_width_textbutton.dart';
 import 'package:my_groovy_recipes/components/textfields/password_textfield.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
-import 'package:my_groovy_recipes/utils/error_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   final VoidCallback onPressed;
@@ -41,7 +41,7 @@ class _RegisterViewState extends State<RegisterView> {
     try {
       if (_passwordController.text != _passwordConfirmController.text) {
         // passwords do not match
-        showErrorDialog(context: context, message: "Passwords don't match");
+        showErrorDialog(context, "Passwords don't match");
         return;
       }
 
@@ -68,13 +68,13 @@ class _RegisterViewState extends State<RegisterView> {
       if (context.mounted) Navigator.pop(context);
       if (e.code == 'invalid-email') {
         // show error dialog
-        showErrorDialog(context: context, message: "Invalid email");
+        showErrorDialog(context, "Invalid email");
       } else if (e.code == "weak-password") {
         // show error dialog
-        showErrorDialog(context: context, message: "Weak password");
+        showErrorDialog(context, "Weak password");
       } else if (e.code == 'email-already-in-use') {
         // show error dialog
-        showErrorDialog(context: context, message: "Email is already in use");
+        showErrorDialog(context, "Email is already in use");
       }
     } catch (e) {
       // error occured
