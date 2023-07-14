@@ -12,11 +12,11 @@ class GoogleSignInButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         RoundedTextIconButton(
-          onPressed: () {
+          onPressed: () async {
             // dismiss keyboard
             FocusManager.instance.primaryFocus?.unfocus();
 
-            AuthService(context).signInWithGoogle();
+            await AuthService(context).signInWithGoogle();
           },
           color: Colors.white,
           text: "Continue with Google",
