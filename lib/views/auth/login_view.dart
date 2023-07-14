@@ -7,6 +7,7 @@ import 'package:my_groovy_recipes/components/buttons/full_width_textbutton.dart'
 import 'package:my_groovy_recipes/components/textfields/password_textfield.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/utils/error_dialog.dart';
+import 'package:my_groovy_recipes/views/auth/forgot_pasword_page.dart';
 
 class LoginView extends StatefulWidget {
   final VoidCallback onPressed;
@@ -160,7 +161,12 @@ class _LoginViewState extends State<LoginView> {
               // forgot password button
               Center(
                 child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // navigate to forgot password view
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordView(),
+                      ));
+                    },
                     child: const Text("Forgot your password?")),
               ),
             ],
