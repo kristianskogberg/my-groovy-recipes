@@ -2,11 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logger/logger.dart';
+import 'package:my_groovy_recipes/components/buttons/google_sign_in_button.dart';
 import 'package:my_groovy_recipes/components/textfields/email_textfield.dart';
 import 'package:my_groovy_recipes/components/buttons/full_width_textbutton.dart';
 import 'package:my_groovy_recipes/components/textfields/password_textfield.dart';
 import 'package:my_groovy_recipes/components/buttons/rounded_textbutton_icon.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
+import 'package:my_groovy_recipes/services/auth_service.dart';
 import 'package:my_groovy_recipes/utils/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -96,7 +98,7 @@ class _LoginViewState extends State<LoginView> {
               Container(
                 margin: const EdgeInsets.only(top: defaultPadding),
                 child: const Text(
-                    "Please login to your account to view and manage Your Groovy Recipes!"),
+                    "Login to your account to view and manage Your Groovy Recipes!"),
               ),
 
               const SizedBox(
@@ -137,23 +139,7 @@ class _LoginViewState extends State<LoginView> {
               ),
 
               // google sign in button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RoundedTextIconButton(
-                    onPressed: () {
-                      // dismiss keyboard
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    color: Colors.white,
-                    text: "Sign In with Google",
-                    icon: const Icon(
-                      FontAwesomeIcons.google,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
+              const GoogleSignInButton(),
 
               const SizedBox(
                 height: defaultPadding,
