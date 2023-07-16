@@ -27,7 +27,7 @@ class FullWidthTextButton extends StatelessWidget {
       child: TextButton(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          backgroundColor: Colors.brown,
+          backgroundColor: const CustomColors().yellow,
           minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultBorderRadius),
@@ -40,7 +40,7 @@ class FullWidthTextButton extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),

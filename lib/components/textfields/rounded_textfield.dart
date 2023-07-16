@@ -9,6 +9,7 @@ class RoundedTextField extends StatelessWidget {
   final bool? isEmail;
   final Icon? icon;
   final Image? imageIcon;
+  final AutovalidateMode? autovalidateMode;
   final int? maxLines;
   final bool? isNumber;
   final BorderRadius? borderRadius;
@@ -26,6 +27,7 @@ class RoundedTextField extends StatelessWidget {
     this.borderWidth,
     this.isPassword,
     this.focusNode,
+    this.autovalidateMode,
     this.icon,
     this.imageIcon,
     this.maxLines,
@@ -50,13 +52,14 @@ class RoundedTextField extends StatelessWidget {
       autofocus: autofocus ?? false,
       focusNode: focusNode,
       maxLines: maxLines ?? 1,
+      style: const TextStyle(height: 1),
       maxLength: 500,
       autocorrect: false,
       onChanged: onChanged,
       obscureText: isPassword != null && isPassword == true ? true : false,
       keyboardType: _getKeyboardType(),
       validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode ?? AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         counterText: "",
         suffixIcon: controller.text.isNotEmpty ? suffixIcon : null,
@@ -71,7 +74,8 @@ class RoundedTextField extends StatelessWidget {
         fillColor: Colors.white,
         hintStyle: const TextStyle(color: Colors.grey),
         isDense: icon == null ? false : true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding:
+            const EdgeInsets.only(top: 16, bottom: 16, left: 16, right: 16),
         prefixIcon: icon == null
             ? imageIcon
             : Padding(

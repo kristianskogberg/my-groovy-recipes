@@ -48,7 +48,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   }
 
   // get the status of the user's email (verified or not verified)
-  void checkIfEmailIsVerified() async {
+  Future checkIfEmailIsVerified() async {
     // refresh the user to get the latest status
     await FirebaseAuth.instance.currentUser!.reload();
     setState(() {
@@ -60,7 +60,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   }
 
   // send verification email to the user's email
-  void sendVerificationEmail() async {
+  Future sendVerificationEmail() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
@@ -84,7 +84,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   }
 
   // sign out the user
-  void signOut() async {
+  Future signOut() async {
     await FirebaseAuth.instance.signOut();
   }
 
@@ -92,7 +92,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   Widget build(BuildContext context) {
     if (_isEmailVerified) {
       // if user has already verified his or hers email, redirect to MyRecipesView
-      return MyRecipesView();
+      return const MyRecipesView();
     }
     // user has not verified his or hers email
     return Scaffold(
@@ -102,12 +102,12 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
         child: Column(
           children: [
             const Text(
-                "We send you an email verification. Please open it to verify your account."),
+                "We've sent you an email verification. Please open it to verify your account."),
             const SizedBox(
               height: defaultPadding,
             ),
             const Text(
-                "If you haven't received a verification email, tap the button below."),
+                "If you haven't received a verification email in a while, tap the button below."),
             const SizedBox(
               height: largePadding,
             ),

@@ -8,7 +8,7 @@ const largePadding = 48.0;
 class CustomColors {
   final yellow = const Color(0xffFDBE11);
   final darkBrown = const Color(0xff3C2011);
-  final lightOrange = const Color(0xffCC6B49);
+  final lightOrange = const Color(0xfffa8d52);
   final beige = const Color(0xffFDF3E6);
 
   const CustomColors();

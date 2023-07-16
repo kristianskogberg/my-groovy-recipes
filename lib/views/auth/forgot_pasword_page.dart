@@ -29,7 +29,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   }
 
   // send a password reset email to the user
-  void resetPassword() async {
+  Future resetPassword() async {
     // show loading animation
     showDialog(
       context: context,

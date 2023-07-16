@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  final BuildContext context;
-
-  AuthService(this.context);
+  // singleton pattern
+  static final AuthService _shared = AuthService._sharedInstance();
+  AuthService._sharedInstance();
+  factory AuthService() => _shared;
 
   // google sign in
-  signInWithGoogle() async {
+  Future signInWithGoogle({required BuildContext context}) async {
     // show loading animation
     showDialog(
       context: context,
@@ -18,6 +19,7 @@ class AuthService {
         );
       },
     );
+
     // begin the google sign in process where the user can choose his or hers google account
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -39,9 +41,7 @@ class AuthService {
     // sign the user in
     final user = await FirebaseAuth.instance.signInWithCredential(credential);
 
-    // dismiss loading animation
     if (context.mounted) Navigator.pop(context);
-
     return user;
   }
 }
