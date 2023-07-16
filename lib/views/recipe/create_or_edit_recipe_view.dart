@@ -16,6 +16,7 @@ import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
 import 'package:my_groovy_recipes/services/cloud/ingredient.dart';
 import 'package:my_groovy_recipes/services/cloud/recipe_service.dart';
 import 'package:my_groovy_recipes/utils/dialogs/discard_changes_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/image_selection_dialog.dart';
 
 const int noIngredientSelected = -1;
 
@@ -45,7 +46,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   XFile? _image;
   final _formKey = GlobalKey<FormState>();
   String _ingredientErrorMessage = "";
-  String _imageUrl = "";
+  String _imageUrl = recipePlaceholderImagePath;
 
   late final String _oldImageUrl;
 
@@ -109,7 +110,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   }
 
   Future selectImage() async {
-    // final selectedImage = await FilePicker.platform.pickFiles(     type: FileType.custom,     allowMultiple: false,      allowedExtensions: ['jpg', 'jpeg', 'png'], );
     final selectedImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 25,
@@ -198,30 +198,84 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                       child: CircularProgressIndicator()),
                                 ),
                                 Center(
-                                  child: _imageUrl != ""
-                                      ? Image.network(
+                                    child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (_imageUrl.contains("asset")) ...[
+                                      // recipe contains a provided asset image, display it
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24),
+                                          child: Image.asset(_imageUrl,
+                                              height: 250,
+                                              width: double.infinity,
+                                              fit: BoxFit.contain),
+                                        ),
+                                      ),
+                                    ] else if (_imageUrl ==
+                                        recipePlaceholderImagePath) ...[
+                                      // recipe does not contain any images, display placeholder
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24),
+                                          child: Image.asset(
+                                            recipePlaceholderImagePath,
+                                            height: 250,
+                                            width: double.infinity,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    ] else ...[
+                                      // recipe contains an uploaded image from the user's device, display it
+                                      Expanded(
+                                        child: Image.network(
                                           _imageUrl,
                                           height: 250,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
-                                        )
-                                      : Image.asset(recipePlaceholderImagePath),
-                                ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                )),
                               ],
                             ),
                           ),
 
-                    // select an image button
+                    // choose an image button
                     Center(
                       child: RoundedTextIconButton(
                           icon: const Icon(
                             FontAwesomeIcons.image,
                             color: Colors.black,
                           ),
-                          onPressed: selectImage,
-                          text: "Select an Image"),
+                          // onPressed: selectImage,
+                          onPressed: () async {
+                            Map<String, dynamic>? imageSelect =
+                                await showImageSelectionDialog(context);
+                            if (imageSelect != null) {
+                              String? selectedImageAsset =
+                                  imageSelect['selectedImageAsset'];
+                              XFile? selectedImageFile =
+                                  imageSelect['selectedImageFromDevice'];
+                              if (selectedImageFile != null) {
+                                // user selected an image from his or hers device
+                                setState(() {
+                                  _image = selectedImageFile;
+                                });
+                              }
+                              if (selectedImageAsset != null) {
+                                // user selected one of the provided image assets
+                                setState(() {
+                                  _imageUrl = selectedImageAsset;
+                                });
+                              }
+                            }
+                          },
+                          text: "Choose an Image"),
                     ),
-                    _image != null || _imageUrl != ""
+                    _image != null || _imageUrl != recipePlaceholderImagePath
                         ?
                         // remove image button
                         Positioned(
@@ -233,10 +287,10 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                 color: Colors.black,
                               ),
                               onPressed: () {
-                                // remove image
+                                // remove image and set it to the placeholder image
                                 setState(() {
                                   _image = null;
-                                  _imageUrl = "";
+                                  _imageUrl = recipePlaceholderImagePath;
                                 });
                               },
                             ),
@@ -639,6 +693,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
           description: _description.text,
           ingredients: _ingredients,
           image: _image,
+          imageUrl: _imageUrl,
           tags: _tags,
         );
       } else {
@@ -655,7 +710,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
           image: _image,
           tags: _tags,
           oldImageUrl: _oldImageUrl,
-          newImageUrl: _image == null ? _imageUrl : "",
+          newImageUrl: _image == null ? _imageUrl : recipePlaceholderImagePath,
         );
       }
 

@@ -114,6 +114,7 @@ class RecipeService {
     required String name,
     required String steps,
     required int portions,
+    required String imageUrl,
     required String description,
     required List<Ingredient> ingredients,
     required List<String> tags,
@@ -123,6 +124,9 @@ class RecipeService {
     // upload image as well if it exists
     if (image != null) {
       uploadedImageUrl = await uploadImage(image);
+    } else {
+      // use the asset image instead
+      uploadedImageUrl = imageUrl;
     }
     // upload recipe data
     try {

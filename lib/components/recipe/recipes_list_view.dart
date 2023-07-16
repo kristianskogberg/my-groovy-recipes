@@ -59,15 +59,29 @@ class RecipesListView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  flex: 1,
-                  child: ClipRRect(
+                ClipRRect(
                     borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(defaultBorderRadius),
                         bottomLeft: Radius.circular(defaultBorderRadius)),
-                    child: recipe.image != ""
-                        // display recipe image with a loading spinner until it has been loaded
-                        ? SizedBox(
+                    child: recipe.image.contains("asset")
+                        ?
+                        // recipe image is one of the provided asset images
+                        SizedBox(
+                            width: imageSize,
+                            height: imageSize,
+                            child: Padding(
+                              padding: const EdgeInsets.all(defaultPadding),
+                              child: Image.asset(
+                                recipe.image,
+                                width: imageSize,
+                                height: imageSize,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          )
+                        :
+                        // recipe image is one of the uploaded images
+                        SizedBox(
                             width: imageSize,
                             height: imageSize,
                             child: Stack(
@@ -85,17 +99,8 @@ class RecipesListView extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          )
-                        :
-                        // display a placeholder image, because the user has not set an image for this recipe
-                        Image.asset(
-                            recipePlaceholderImagePath,
-                            width: imageSize,
-                            height: imageSize,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                ),
+                          )),
+
                 // vertical separator line
                 const SizedBox(
                   width: 2,
@@ -105,11 +110,11 @@ class RecipesListView extends StatelessWidget {
                   ),
                 ),
                 // right side
-                Flexible(
-                  flex: 2,
+                Expanded(
                   child: SizedBox(
                     height: imageSize,
                     child: Column(
+                      mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

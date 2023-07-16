@@ -160,8 +160,7 @@ class _RegisterViewState extends State<RegisterView> {
                   autovalidate: _autovalidate,
                   validator: (password) {
                     // validate password
-                    if (_passwordController.text == "" ||
-                        password != _passwordController.text) {
+                    if (password != _passwordController.text) {
                       // confirm password did not match with password
                       return 'Passwords do not match';
                     }

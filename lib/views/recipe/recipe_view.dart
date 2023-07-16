@@ -135,15 +135,26 @@ class _RecipeViewState extends State<RecipeView> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(defaultBorderRadius),
                 child: Center(
-                  child: widget.recipe.image != ""
-                      ? Image.network(
-                          widget.recipe.image,
-                          height: 250,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(recipePlaceholderImagePath),
-                ),
+                    child: widget.recipe.image.contains("asset")
+                        ?
+                        // recipe image is one of the provided asset images
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Image.asset(widget.recipe.image,
+                                  height: 250,
+                                  width: double.infinity,
+                                  fit: BoxFit.contain),
+                            ),
+                          )
+                        :
+                        // recipe image is one of the uploaded images
+                        Image.network(
+                            widget.recipe.image,
+                            height: 250,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )),
               ),
             ),
             Column(
