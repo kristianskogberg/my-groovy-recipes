@@ -3,12 +3,16 @@ import 'package:my_groovy_recipes/constants/styling.dart';
 
 class FullWidthTextButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isLoading;
   final String text;
+  final Icon? icon;
 
   const FullWidthTextButton({
     super.key,
     required this.onPressed,
+    required this.isLoading,
     required this.text,
+    this.icon,
   });
 
   @override
@@ -25,7 +29,8 @@ class FullWidthTextButton extends StatelessWidget {
         ],
       ),
       child: TextButton(
-        onPressed: onPressed,
+        // disable button if it is loading
+        onPressed: isLoading ? null : onPressed,
         style: TextButton.styleFrom(
           backgroundColor: const CustomColors().yellow,
           minimumSize: const Size(double.infinity, 48),
@@ -37,13 +42,32 @@ class FullWidthTextButton extends StatelessWidget {
             ),
           ),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: isLoading
+            ?
+            // display loading indicator if it is loading
+            const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (icon != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: icon,
+                    ),
+                  ],
+                  Text(
+                    text,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

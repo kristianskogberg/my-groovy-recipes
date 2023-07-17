@@ -10,23 +10,12 @@ class AuthService {
 
   // google sign in
   Future signInWithGoogle({required BuildContext context}) async {
-    // show loading animation
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
     // begin the google sign in process where the user can choose his or hers google account
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     if (googleUser == null) {
       // user cancelled the google sign in process
-      // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+
       return;
     }
 
@@ -41,7 +30,6 @@ class AuthService {
     // sign the user in
     final user = await FirebaseAuth.instance.signInWithCredential(credential);
 
-    if (context.mounted) Navigator.pop(context);
     return user;
   }
 }

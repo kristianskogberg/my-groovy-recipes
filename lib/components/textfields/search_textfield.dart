@@ -12,23 +12,27 @@ class SearchTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RoundedTextField(
-      hint: "Search by recipe name or tags...",
-      isEmail: true,
-      controller: controller,
-      autofocus: autofocus,
-      onChanged: onChanged,
-      suffixIcon: IconButton(
-        onPressed: controller.clear,
-        icon: const Icon(
-          FontAwesomeIcons.xmark,
-          color: Colors.grey,
+    return SizedBox(
+      height: 44,
+      child: RoundedTextField(
+        hint: "Search by recipe name or tags...",
+        isEmail: true,
+        controller: controller,
+        maxLines: 1,
+        autofocus: autofocus,
+        onChanged: onChanged,
+        suffixIcon: IconButton(
+          onPressed: controller.clear,
+          icon: const Icon(
+            FontAwesomeIcons.xmark,
+            color: Colors.grey,
+          ),
         ),
-      ),
-      icon: const Icon(
-        FontAwesomeIcons.magnifyingGlass,
-        size: 22,
-        color: Colors.black,
+        icon: const Icon(
+          FontAwesomeIcons.magnifyingGlass,
+          size: 20,
+          color: Colors.black,
+        ),
       ),
     );
   }

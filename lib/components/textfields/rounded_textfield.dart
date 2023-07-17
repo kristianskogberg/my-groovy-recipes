@@ -75,14 +75,8 @@ class RoundedTextField extends StatelessWidget {
         fillColor: Colors.white,
         hintStyle: const TextStyle(color: Colors.grey),
         isDense: icon == null ? false : true,
-        contentPadding:
-            const EdgeInsets.only(top: 16, bottom: 16, left: 16, right: 16),
-        prefixIcon: icon == null
-            ? imageIcon
-            : Padding(
-                padding: const EdgeInsets.only(left: 0),
-                child: imageIcon ?? icon,
-              ),
+        contentPadding: const EdgeInsets.all(16),
+        prefixIcon: icon == null ? imageIcon : imageIcon ?? icon,
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
                 width: borderWidth ?? 2,

@@ -26,7 +26,11 @@ class RecipesListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       itemCount: recipes.length,
-      padding: const EdgeInsets.all(defaultPadding),
+      padding: const EdgeInsets.only(
+          top: defaultPadding,
+          bottom: largePadding,
+          left: defaultPadding,
+          right: defaultPadding),
       physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       separatorBuilder: (context, index) {

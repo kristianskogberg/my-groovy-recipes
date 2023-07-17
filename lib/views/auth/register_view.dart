@@ -25,6 +25,8 @@ class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   // don't autovaldiate form before it is submitted
   bool _autovalidate = false;
+  bool _isLoading = false;
+  bool _continueWithGoogle = false;
 
   @override
   void initState() {
@@ -54,6 +56,11 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
 
+    // show loading animation
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       if (_passwordController.text != _passwordConfirmController.text) {
         // passwords do not match
@@ -62,14 +69,9 @@ class _RegisterViewState extends State<RegisterView> {
       }
 
       // show loading animation
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+      setState(() {
+        _isLoading = true;
+      });
 
       // try to register the user
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -77,11 +79,15 @@ class _RegisterViewState extends State<RegisterView> {
         password: _passwordController.text,
       );
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
     } on FirebaseAuthException catch (e) {
       // error occured
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
       if (e.code == 'invalid-email') {
         // show error dialog
         showErrorDialog(context, "Invalid email");
@@ -95,7 +101,9 @@ class _RegisterViewState extends State<RegisterView> {
     } catch (e) {
       // error occured
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
       Logger().e(e);
     }
   }
@@ -173,7 +181,12 @@ class _RegisterViewState extends State<RegisterView> {
 
                 // register button
                 FullWidthTextButton(
+                    isLoading:
+                        _isLoading && !_continueWithGoogle ? true : false,
                     onPressed: () async {
+                      if (_isLoading) {
+                        return;
+                      }
                       // dismiss keyboard
                       FocusManager.instance.primaryFocus?.unfocus();
 
@@ -191,7 +204,27 @@ class _RegisterViewState extends State<RegisterView> {
 
                 // google sign in button
                 GoogleSignInButton(
-                  authService: _authService,
+                  isLoading: _isLoading && _continueWithGoogle ? true : false,
+                  onPressed: () async {
+                    if (_isLoading) {
+                      return;
+                    }
+
+                    setState(() {
+                      _isLoading = true;
+                      _continueWithGoogle = true;
+                    });
+                    // dismiss keyboard
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    // sign in with google
+                    await _authService.signInWithGoogle(context: context);
+
+                    setState(() {
+                      _isLoading = false;
+                      _continueWithGoogle = false;
+                    });
+                  },
                 ),
 
                 const SizedBox(
@@ -207,7 +240,7 @@ class _RegisterViewState extends State<RegisterView> {
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.all(defaultSmallPadding),
                         ),
-                        onPressed: widget.onPressed,
+                        onPressed: _isLoading == true ? null : widget.onPressed,
                         child: const Text("Sign in here")),
                   ],
                 ),

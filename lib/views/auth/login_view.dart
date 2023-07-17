@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -28,6 +27,8 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   // don't autovaldiate form before it is submitted
   bool _autovalidate = false;
+  bool _isLoading = false;
+  bool _continueWithGoogle = false;
 
   @override
   void initState() {
@@ -57,14 +58,9 @@ class _LoginViewState extends State<LoginView> {
     }
 
     // show loading animation
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       // try to sign the user in
@@ -73,11 +69,15 @@ class _LoginViewState extends State<LoginView> {
         password: _passwordController.text,
       );
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
     } on FirebaseAuthException catch (e) {
       // error occured
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
       if (e.code == 'user-not-found') {
         // show error dialog
         showErrorDialog(context, "Wrong credentials");
@@ -91,7 +91,10 @@ class _LoginViewState extends State<LoginView> {
     } catch (e) {
       // error occured
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
+
       Logger().e(e);
     }
   }
@@ -136,6 +139,10 @@ class _LoginViewState extends State<LoginView> {
                 PasswordTextField(
                   controller: _passwordController,
                   autovalidate: _autovalidate,
+                  validator: (password) {
+                    // no need to validate password when logging in
+                    return null;
+                  },
                 ),
                 const SizedBox(
                   height: largePadding,
@@ -143,7 +150,12 @@ class _LoginViewState extends State<LoginView> {
 
                 // login button
                 FullWidthTextButton(
+                    isLoading:
+                        _isLoading && !_continueWithGoogle ? true : false,
                     onPressed: () async {
+                      if (_isLoading) {
+                        return;
+                      }
                       // dismiss keyboard
                       FocusManager.instance.primaryFocus?.unfocus();
 
@@ -161,7 +173,27 @@ class _LoginViewState extends State<LoginView> {
 
                 // google sign in button
                 GoogleSignInButton(
-                  authService: _authService,
+                  isLoading: _isLoading && _continueWithGoogle ? true : false,
+                  onPressed: () async {
+                    if (_isLoading) {
+                      return;
+                    }
+
+                    setState(() {
+                      _isLoading = true;
+                      _continueWithGoogle = true;
+                    });
+                    // dismiss keyboard
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    // sign in with google
+                    await _authService.signInWithGoogle(context: context);
+
+                    setState(() {
+                      _isLoading = false;
+                      _continueWithGoogle = false;
+                    });
+                  },
                 ),
 
                 const SizedBox(
@@ -177,7 +209,7 @@ class _LoginViewState extends State<LoginView> {
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.all(defaultSmallPadding),
                         ),
-                        onPressed: widget.onPressed,
+                        onPressed: _isLoading == true ? null : widget.onPressed,
                         child: const Text("Register here")),
                   ],
                 ),
@@ -185,12 +217,15 @@ class _LoginViewState extends State<LoginView> {
                 // forgot password button
                 Center(
                   child: TextButton(
-                      onPressed: () {
-                        // navigate to forgot password view
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const ForgotPasswordView(),
-                        ));
-                      },
+                      onPressed: _isLoading == true
+                          ? null
+                          : () {
+                              // navigate to forgot password view
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    const ForgotPasswordView(),
+                              ));
+                            },
                       child: const Text("Forgot your password?")),
                 ),
               ],

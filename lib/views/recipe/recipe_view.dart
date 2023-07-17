@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_groovy_recipes/components/recipe/ingredients_list.dart';
 import 'package:my_groovy_recipes/components/recipe/portions_calculator.dart';
@@ -7,7 +6,6 @@ import 'package:my_groovy_recipes/components/recipe/tag_list.dart';
 import 'package:my_groovy_recipes/components/titles/heading.dart';
 import 'package:my_groovy_recipes/components/titles/subheading.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';
-import 'package:my_groovy_recipes/constants/routes.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
 import 'package:my_groovy_recipes/services/cloud/recipe_service.dart';

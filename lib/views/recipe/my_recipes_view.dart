@@ -157,9 +157,6 @@ class _MyRecipesViewState extends State<MyRecipesView> {
               builder: (context, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
-                    return const Scaffold(
-                      body: Center(child: CircularProgressIndicator()),
-                    );
                   case ConnectionState.active:
                     if (snapshot.hasData) {
                       final allRecipes = snapshot.data as Iterable<CloudRecipe>;
@@ -169,7 +166,7 @@ class _MyRecipesViewState extends State<MyRecipesView> {
                         return const Padding(
                           padding: EdgeInsets.all(defaultPadding),
                           child: Text(
-                              "You don't have any recipes yet. Try adding a new recipe by clicking the plus-icon in the bottom-right corner!"),
+                              "You don't have any recipes yet. To add a new recipe, simply click the yellow plus icon located in the bottom-right corner!"),
                         );
                       }
 

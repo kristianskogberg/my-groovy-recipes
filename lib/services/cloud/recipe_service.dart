@@ -28,6 +28,7 @@ class RecipeService {
     }
     try {
       await recipes.doc(documentId).delete();
+      Logger().d("recipe was deleted successfully");
     } catch (e) {
       throw CouldNotDeleteRecipeException();
     }
@@ -54,8 +55,6 @@ class RecipeService {
       uploadedImageUrl = await uploadImage(image);
     }
 
-    Logger().d(newImageUrl, oldImageUrl);
-
     // delete old image if the user had previously uploaded an image but has now removed it from the UI
     // or the user has selected a new image
     if (oldImageUrl.contains("firebasestorage")) {
@@ -74,6 +73,7 @@ class RecipeService {
         ingredientsFieldName: ingredients.map((e) => e.toJson()).toList(),
         tagsFieldName: tags.toList(),
       });
+      Logger().d("recipe was updated successfully");
     } on FirebaseException catch (e) {
       Logger().e(e);
       throw CouldNotUpdateRecipeException();
@@ -143,6 +143,7 @@ class RecipeService {
         ingredientsFieldName: ingredients.map((e) => e.toJson()).toList(),
         tagsFieldName: tags.toList(),
       });
+      Logger().d("recipe was added successfully");
     } catch (e) {
       throw CouldNotCreateRecipeException();
     }

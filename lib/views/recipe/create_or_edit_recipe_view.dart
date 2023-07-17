@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -48,6 +47,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   final _formKey = GlobalKey<FormState>();
   String _ingredientErrorMessage = "";
   String _imageUrl = recipePlaceholderImagePath;
+  bool _isLoading = false;
 
   late final String _oldImageUrl;
 
@@ -102,12 +102,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
         _tags.add(tag);
       });
     }
-  }
-
-  void _removeTag(String tag) {
-    setState(() {
-      _tags.remove(tag);
-    });
   }
 
   Future selectImage() async {
@@ -326,7 +320,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                       controller: _name,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Your recipe is missing a name!';
+                          return "Your recipe is missing a name!";
                         }
                         return null;
                       },
@@ -413,7 +407,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                           Expanded(
                             flex: 5,
                             child: RoundedTextField(
-                              hint: "Name",
+                              hint: "Name...",
                               controller: _ingredientName,
                               borderRadius: BorderRadius.zero,
                               borderWidth: 0,
@@ -446,7 +440,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                 onPressed: () {
                                   if (_ingredientName.text.isEmpty ||
                                       _ingredientAmount.text.isEmpty) {
-                                    print("moi");
                                     setState(() {
                                       _ingredientErrorMessage =
                                           "Please fill in both fields";
@@ -631,6 +624,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
 
                     // save button
                     FullWidthTextButton(
+                        isLoading: _isLoading,
                         onPressed: () async {
                           // dismiss keyboard
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -671,14 +665,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
       final userId = currentUser.uid;
 
       // show loading animation
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+      setState(() {
+        _isLoading = true;
+      });
 
       try {
         if (widget.recipe == null) {
@@ -716,11 +705,15 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
       } catch (e) {
         Logger().e(e);
         // dismiss loading animation
-        if (context.mounted) Navigator.pop(context);
+        setState(() {
+          _isLoading = false;
+        });
       }
 
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
 
       // navigate to MyRecipesView after saving the recipe successfully
       if (context.mounted) {
