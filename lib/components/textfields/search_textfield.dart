@@ -13,7 +13,7 @@ class SearchTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RoundedTextField(
-      hint: "Search for a recipe...",
+      hint: "Search by recipe name or tags...",
       isEmail: true,
       controller: controller,
       autofocus: autofocus,

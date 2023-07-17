@@ -172,12 +172,27 @@ class _MyRecipesViewState extends State<MyRecipesView> {
                           );
                         }
 
-                        // filter recipes based on the search text
-                        _filteredRecipes = allRecipes
-                            .where((recipe) => recipe.name
-                                .toLowerCase()
-                                .contains(_searchController.text.toLowerCase()))
-                            .toList();
+                        // filter recipes based on the search query
+                        _filteredRecipes = allRecipes.where((recipe) {
+                          final lowercaseQuery =
+                              _searchController.text.toLowerCase();
+
+                          // check if the recipe name contains the search query
+                          if (recipe.name
+                              .toLowerCase()
+                              .contains(lowercaseQuery)) {
+                            return true;
+                          }
+
+                          // check if any of the recipe tags contain the search query
+                          for (final tag in recipe.tags) {
+                            if (tag.toLowerCase().contains(lowercaseQuery)) {
+                              return true;
+                            }
+                          }
+
+                          return false;
+                        }).toList();
 
                         if (_filteredRecipes.isEmpty) {
                           // did not find any recipes with that search text
