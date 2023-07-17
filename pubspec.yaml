@@ -75,6 +75,7 @@ flutter:
   assets:
     - assets/animations/image_loading.json
     - assets/images/image_not_found.png
+    - assets/images/verify_email.png
     - assets/images/empty_plate.png
     - assets/images/pie.png
     - assets/images/salad.png

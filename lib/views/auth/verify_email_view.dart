@@ -99,24 +99,35 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       appBar: AppBar(title: const Text("Verify Email")),
       body: Padding(
         padding: const EdgeInsets.all(defaultPadding),
-        child: Column(
-          children: [
-            const Text(
-                "We've sent you an email verification. Please open it to verify your account."),
-            const SizedBox(
-              height: defaultPadding,
-            ),
-            const Text(
-                "If you haven't received a verification email in a while, tap the button below."),
-            const SizedBox(
-              height: largePadding,
-            ),
-            TextButton(
-                onPressed:
-                    _canResendEmailVerification ? sendVerificationEmail : null,
-                child: const Text("Send verificiation email again")),
-            TextButton(onPressed: signOut, child: const Text("Restart"))
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 16, bottom: 32),
+                child: Image.asset(
+                  "assets/images/verify_email.png",
+                  width: 100,
+                  height: 100,
+                ),
+              ),
+              const Text(
+                  "We've sent you an email verification. Please open it to verify your account."),
+              const SizedBox(
+                height: defaultPadding,
+              ),
+              const Text(
+                  "If you haven't received a verification email in a while, tap the button below."),
+              const SizedBox(
+                height: largePadding,
+              ),
+              TextButton(
+                  onPressed: _canResendEmailVerification
+                      ? sendVerificationEmail
+                      : null,
+                  child: const Text("Send verificiation email again")),
+              TextButton(onPressed: signOut, child: const Text("Restart"))
+            ],
+          ),
         ),
       ),
     );
