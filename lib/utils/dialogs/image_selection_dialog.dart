@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:my_groovy_recipes/components/buttons/rounded_textbutton_icon.dart';
-import 'package:my_groovy_recipes/constants/image_paths.dart';
-import 'package:my_groovy_recipes/constants/styling.dart';
+import "package:flutter/material.dart";
+import "package:font_awesome_flutter/font_awesome_flutter.dart";
+import "package:my_groovy_recipes/components/buttons/rounded_textbutton_icon.dart";
+import "package:my_groovy_recipes/constants/image_paths.dart";
+import "package:my_groovy_recipes/constants/styling.dart";
 
-import 'package:image_picker/image_picker.dart';
+import "package:image_picker/image_picker.dart";
 
 Future<Map<String, dynamic>?> showImageSelectionDialog(
     BuildContext context) async {
@@ -31,8 +31,8 @@ Future<Map<String, dynamic>?> showImageSelectionDialog(
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: const CustomColors().beige,
-        contentPadding: EdgeInsets.all(0),
-        insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+        contentPadding: EdgeInsets.zero,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         titlePadding: EdgeInsets.zero,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(defaultBorderRadius)),
@@ -49,7 +49,7 @@ Future<Map<String, dynamic>?> showImageSelectionDialog(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Choose an Image"),
+                  const Text("Choose an Image"),
                   InkWell(
                       onTap: () {
                         // close dialog
@@ -75,7 +75,8 @@ Future<Map<String, dynamic>?> showImageSelectionDialog(
         ),
         content: Container(
           width: double.maxFinite,
-          padding: EdgeInsets.only(top: 16, bottom: 0, left: 16, right: 16),
+          padding:
+              const EdgeInsets.only(top: 16, bottom: 0, left: 16, right: 16),
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -142,7 +143,7 @@ Future<Map<String, dynamic>?> showImageSelectionDialog(
   );
 
   return {
-    'selectedImageAsset': selectedImageAsset,
-    'selectedImageFromDevice': selectedImageFromDevice
+    "selectedImageAsset": selectedImageAsset,
+    "selectedImageFromDevice": selectedImageFromDevice
   };
 }

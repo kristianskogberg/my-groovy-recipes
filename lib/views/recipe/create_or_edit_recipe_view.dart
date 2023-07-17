@@ -8,6 +8,7 @@ import 'package:logger/logger.dart';
 import 'package:my_groovy_recipes/components/buttons/full_width_textbutton.dart';
 import 'package:my_groovy_recipes/components/buttons/rounded_textbutton_icon.dart';
 import 'package:my_groovy_recipes/components/recipe/portions_calculator.dart';
+import 'package:my_groovy_recipes/components/recipe/tag.dart';
 import 'package:my_groovy_recipes/components/textfields/rounded_textfield.dart';
 import 'package:my_groovy_recipes/components/titles/subheading.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';
@@ -250,7 +251,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             FontAwesomeIcons.image,
                             color: Colors.black,
                           ),
-                          // onPressed: selectImage,
                           onPressed: () async {
                             Map<String, dynamic>? imageSelect =
                                 await showImageSelectionDialog(context);
@@ -437,12 +437,16 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                 onPressed: () {
                                   if (_ingredientName.text.isEmpty ||
                                       _ingredientAmount.text.isEmpty) {
+                                    print("moi");
                                     setState(() {
                                       _ingredientErrorMessage =
                                           "Please fill in both fields";
                                     });
                                     return;
                                   }
+                                  setState(() {
+                                    _ingredientErrorMessage = "";
+                                  });
                                   String ingredientName = _ingredientName.text;
                                   double ingredientAmount =
                                       double.parse(_ingredientAmount.text);
@@ -485,7 +489,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                       ),
                     ),
                     // possible ingredient error message
-                    if (_ingredientErrorMessage != "" && _ingredients.isEmpty)
+                    if (_ingredientErrorMessage != "" || _ingredients.isEmpty)
                       Padding(
                         padding: const EdgeInsets.only(
                             top: 8, bottom: 8, right: 16, left: 16),
@@ -499,6 +503,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                     // list of added ingredients
                     ListView.separated(
                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: _ingredients.length,
                       itemBuilder: (context, index) => getIngredientRow(index),
                       separatorBuilder: (context, index) {
@@ -595,36 +600,20 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: defaultPadding),
+
+                    // tags
                     Wrap(
                       spacing: 8,
-                      children: _tags.map((interest) {
-                        return Container(
-                          margin: const EdgeInsets.only(
-                              left: 0, right: 0, top: 16, bottom: 0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 1.0,
-                            ),
-                          ),
-                          child: Chip(
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            padding: EdgeInsets.zero,
-                            label: Text(interest),
-                            deleteIcon: const Icon(
-                              FontAwesomeIcons.xmark,
-                              size: 16,
-                              color: Colors.black,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side:
-                                  const BorderSide(color: Colors.red, width: 2),
-                            ),
-                            onDeleted: () => _removeTag(interest),
-                          ),
+                      runSpacing: 16,
+                      children: _tags.map((tag) {
+                        return Tag(
+                          tag: tag,
+                          onTap: () {
+                            setState(() {
+                              _tags.remove(tag);
+                            });
+                          },
                         );
                       }).toList(),
                     ),

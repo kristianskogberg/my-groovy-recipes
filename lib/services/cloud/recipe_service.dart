@@ -23,7 +23,7 @@ class RecipeService {
     required String imageUrl,
   }) async {
     // delete the recipe image as well if it exists
-    if (imageUrl != "") {
+    if (imageUrl.contains("firebasestorage")) {
       await deleteImage(imageUrl);
     }
     try {
@@ -54,9 +54,11 @@ class RecipeService {
       uploadedImageUrl = await uploadImage(image);
     }
 
+    Logger().d(newImageUrl, oldImageUrl);
+
     // delete old image if the user had previously uploaded an image but has now removed it from the UI
     // or the user has selected a new image
-    if ((newImageUrl == "" && oldImageUrl != "")) {
+    if (oldImageUrl.contains("firebasestorage")) {
       await deleteImage(oldImageUrl);
     }
 

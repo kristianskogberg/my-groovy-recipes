@@ -7,7 +7,6 @@ import 'package:my_groovy_recipes/views/auth/auth_view.dart';
 import 'package:my_groovy_recipes/views/auth/verify_email_view.dart';
 import 'package:my_groovy_recipes/views/recipe/create_or_edit_recipe_view.dart';
 import 'package:my_groovy_recipes/views/recipe/my_recipes_view.dart';
-import 'package:my_groovy_recipes/views/recipe/recipe_view.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 

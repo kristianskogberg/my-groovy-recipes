@@ -12,4 +12,7 @@ const recipeImages = {
   "assets/images/pancakes.png",
   "assets/images/pizza.png",
   "assets/images/taco.png",
+  "assets/images/waffles.png",
+  "assets/images/drink.png",
+  "assets/images/bread.png",
 };
