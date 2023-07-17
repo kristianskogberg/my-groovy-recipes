@@ -56,6 +56,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   int _portions = 1;
 
   void incrementPortions() {
+    if (_isLoading == true) {
+      return;
+    }
     setState(() {
       if (_portions < 99) {
         _portions++;
@@ -64,6 +67,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   }
 
   void decrementPortions() {
+    if (_isLoading == true) {
+      return;
+    }
     setState(() {
       if (_portions > 1) {
         _portions--;
@@ -104,6 +110,12 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
     }
   }
 
+  void _removeTag(String tag) {
+    setState(() {
+      _tags.remove(tag);
+    });
+  }
+
   Future selectImage() async {
     final selectedImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -116,6 +128,64 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
     setState(() {
       _image = selectedImage;
     });
+  }
+
+  // add or update selected ingredient
+  void addOrUpdateIngredient() {
+    if (_ingredientName.text.isEmpty || _ingredientAmount.text.isEmpty) {
+      setState(() {
+        _ingredientErrorMessage = "Please fill in both fields";
+      });
+      return;
+    }
+    setState(() {
+      _ingredientErrorMessage = "";
+    });
+    String ingredientName = _ingredientName.text;
+    double ingredientAmount = double.parse(_ingredientAmount.text);
+    if (ingredientName.isNotEmpty) {
+      // add new ingredient to the list or update it
+      setState(() {
+        if (_selectedIngredientIndex != noIngredientSelected) {
+          // user has selected an ingredient, so update it
+          _ingredients[_selectedIngredientIndex].amount = ingredientAmount;
+          _ingredients[_selectedIngredientIndex].name = ingredientName;
+          // after updating the ingredient, set the index back to -1 (or nothing selecyted)
+          _selectedIngredientIndex = noIngredientSelected;
+        } else {
+          // add new ingredient
+          _ingredients
+              .add(Ingredient(amount: ingredientAmount, name: ingredientName));
+        }
+        // clear ingredient amount and name fields
+        _ingredientAmount.clear();
+        _ingredientName.clear();
+        // focus back to the ingredient amount text field
+        _ingredientAmountFocusNode.requestFocus();
+      });
+    }
+  }
+
+  Future<void> chooseImage() async {
+    if (_isLoading) return;
+
+    Map<String, dynamic>? imageSelect = await showImageSelectionDialog(context);
+    if (imageSelect != null) {
+      String? selectedImageAsset = imageSelect['selectedImageAsset'];
+      XFile? selectedImageFile = imageSelect['selectedImageFromDevice'];
+      if (selectedImageFile != null) {
+        // user selected an image from his or hers device
+        setState(() {
+          _image = selectedImageFile;
+        });
+      }
+      if (selectedImageAsset != null) {
+        // user selected one of the provided image assets
+        setState(() {
+          _imageUrl = selectedImageAsset;
+        });
+      }
+    }
   }
 
   @override
@@ -254,28 +324,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             FontAwesomeIcons.image,
                             color: Colors.black,
                           ),
-                          onPressed: () async {
-                            Map<String, dynamic>? imageSelect =
-                                await showImageSelectionDialog(context);
-                            if (imageSelect != null) {
-                              String? selectedImageAsset =
-                                  imageSelect['selectedImageAsset'];
-                              XFile? selectedImageFile =
-                                  imageSelect['selectedImageFromDevice'];
-                              if (selectedImageFile != null) {
-                                // user selected an image from his or hers device
-                                setState(() {
-                                  _image = selectedImageFile;
-                                });
-                              }
-                              if (selectedImageAsset != null) {
-                                // user selected one of the provided image assets
-                                setState(() {
-                                  _imageUrl = selectedImageAsset;
-                                });
-                              }
-                            }
-                          },
+                          onPressed: chooseImage,
                           text: "Choose an Image"),
                     ),
                     _image != null || _imageUrl != recipePlaceholderImagePath
@@ -289,13 +338,15 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                 FontAwesomeIcons.xmark,
                                 color: Colors.black,
                               ),
-                              onPressed: () {
-                                // remove image and set it to the placeholder image
-                                setState(() {
-                                  _image = null;
-                                  _imageUrl = recipePlaceholderImagePath;
-                                });
-                              },
+                              onPressed: _isLoading
+                                  ? null
+                                  : () {
+                                      // remove image and set it to the placeholder image
+                                      setState(() {
+                                        _image = null;
+                                        _imageUrl = recipePlaceholderImagePath;
+                                      });
+                                    },
                             ),
                           )
                         : Container(),
@@ -318,6 +369,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                     RoundedTextField(
                       hint: "Name of the recipe...",
                       controller: _name,
+                      enabled: _isLoading,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Your recipe is missing a name!";
@@ -336,6 +388,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                     // recipe description text field
                     RoundedTextField(
                       hint: "Description...",
+                      enabled: _isLoading,
                       controller: _description,
                       maxLines: 3,
                     ),
@@ -380,6 +433,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             child: RoundedTextField(
                               hint: "Amount",
                               focusNode: _ingredientAmountFocusNode,
+                              enabled: _isLoading,
                               controller: _ingredientAmount,
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(defaultBorderRadius),
@@ -409,6 +463,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             child: RoundedTextField(
                               hint: "Name...",
                               controller: _ingredientName,
+                              enabled: _isLoading,
                               borderRadius: BorderRadius.zero,
                               borderWidth: 0,
                             ),
@@ -437,48 +492,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                               ),
                             ),
                             child: IconButton(
-                                onPressed: () {
-                                  if (_ingredientName.text.isEmpty ||
-                                      _ingredientAmount.text.isEmpty) {
-                                    setState(() {
-                                      _ingredientErrorMessage =
-                                          "Please fill in both fields";
-                                    });
-                                    return;
-                                  }
-                                  setState(() {
-                                    _ingredientErrorMessage = "";
-                                  });
-                                  String ingredientName = _ingredientName.text;
-                                  double ingredientAmount =
-                                      double.parse(_ingredientAmount.text);
-                                  if (ingredientName.isNotEmpty) {
-                                    // add new ingredient to the list or update it
-                                    setState(() {
-                                      if (_selectedIngredientIndex !=
-                                          noIngredientSelected) {
-                                        // user has selected an ingredient, so update it
-                                        _ingredients[_selectedIngredientIndex]
-                                            .amount = ingredientAmount;
-                                        _ingredients[_selectedIngredientIndex]
-                                            .name = ingredientName;
-                                        // after updating the ingredient, set the index back to -1 (or nothing selecyted)
-                                        _selectedIngredientIndex =
-                                            noIngredientSelected;
-                                      } else {
-                                        // add new ingredient
-                                        _ingredients.add(Ingredient(
-                                            amount: ingredientAmount,
-                                            name: ingredientName));
-                                      }
-                                      // clear ingredient amount and name fields
-                                      _ingredientAmount.clear();
-                                      _ingredientName.clear();
-                                      // focus back to the ingredient amount text field
-                                      _ingredientAmountFocusNode.requestFocus();
-                                    });
-                                  }
-                                },
+                                onPressed: _isLoading == true
+                                    ? null
+                                    : addOrUpdateIngredient,
                                 icon: Icon(
                                   _selectedIngredientIndex ==
                                           noIngredientSelected
@@ -529,6 +545,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                     // steps text field
                     RoundedTextField(
                       hint: "Steps...",
+                      enabled: _isLoading,
                       controller: _steps,
                       maxLines: 8,
                       validator: (value) {
@@ -559,6 +576,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             flex: 2,
                             child: RoundedTextField(
                               hint: "Tag name...",
+                              enabled: _isLoading,
                               controller: _tagName,
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(defaultBorderRadius),
@@ -588,12 +606,14 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                               ),
                             ),
                             child: IconButton(
-                                onPressed: () {
-                                  // add a new tag
-                                  String tag = _tagName.text;
-                                  _addTag(tag);
-                                  _tagName.clear();
-                                },
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                        // add a new tag
+                                        String tag = _tagName.text;
+                                        _addTag(tag);
+                                        _tagName.clear();
+                                      },
                                 icon: const Icon(
                                   FontAwesomeIcons.plus,
                                   color: Colors.black,
@@ -611,11 +631,12 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                       children: _tags.map((tag) {
                         return Tag(
                           tag: tag,
-                          onTap: () {
-                            setState(() {
-                              _tags.remove(tag);
-                            });
-                          },
+                          onTap: _isLoading
+                              ? null
+                              : () {
+                                  // remove a tag
+                                  _removeTag(tag);
+                                },
                         );
                       }).toList(),
                     ),
@@ -648,6 +669,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
 // is called when user presses save (changes) button
   Future _submitForm() async {
     final form = _formKey.currentState;
+
     if (_ingredients.isEmpty) {
       setState(() {
         _ingredientErrorMessage = "Your recipe is missing ingredients!";
@@ -723,32 +745,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
     }
   }
 
-  Widget getTagRow(int index) {
-    return Column(
-      children: [
-        ListTile(
-          visualDensity: const VisualDensity(horizontal: 0, vertical: -2),
-          contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
-          title: Row(
-            children: [
-              Text(_tags[index]),
-            ],
-          ),
-          trailing: SizedBox(
-            width: 70,
-            child: InkWell(
-                onTap: () {
-                  setState(() {
-                    _tags.removeAt(index);
-                  });
-                },
-                child: const Icon(FontAwesomeIcons.trashCan)),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget getIngredientRow(int index) {
     return Column(
       children: [
@@ -772,25 +768,29 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
             width: 70,
             child: Row(children: [
               InkWell(
-                  onTap: () {
-                    // remove the selected ingredient
-                    setState(() {
-                      _ingredients.removeAt(index);
-                    });
-                  },
+                  onTap: _isLoading == true
+                      ? null
+                      : () {
+                          // remove the selected ingredient
+                          setState(() {
+                            _ingredients.removeAt(index);
+                          });
+                        },
                   child: const Icon(FontAwesomeIcons.trashCan,
                       color: Colors.black)),
               const SizedBox(width: 16),
               InkWell(
-                  onTap: () {
-                    // save the changes for the selected ingredient
-                    setState(() {
-                      _selectedIngredientIndex = index;
-                    });
-                    _ingredientAmount.text =
-                        _ingredients[index].amount.toString();
-                    _ingredientName.text = _ingredients[index].name;
-                  },
+                  onTap: _isLoading == true
+                      ? null
+                      : () {
+                          // save the changes for the selected ingredient
+                          setState(() {
+                            _selectedIngredientIndex = index;
+                          });
+                          _ingredientAmount.text =
+                              _ingredients[index].amount.toString();
+                          _ingredientName.text = _ingredients[index].name;
+                        },
                   child: const Icon(FontAwesomeIcons.penToSquare,
                       color: Colors.black)),
             ]),

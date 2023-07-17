@@ -6,11 +6,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class EmailTextField extends StatelessWidget {
   final TextEditingController controller;
   final bool? autovalidate;
+  final bool? enabled;
 
   const EmailTextField({
     super.key,
     required this.controller,
     this.autovalidate,
+    this.enabled,
   });
 
   @override
@@ -18,6 +20,7 @@ class EmailTextField extends StatelessWidget {
     return RoundedTextField(
       hint: "Enter your email...",
       isEmail: true,
+      enabled: enabled,
       controller: controller,
       validator: (email) {
         if (email == null || email.isEmpty || !EmailValidator.validate(email)) {

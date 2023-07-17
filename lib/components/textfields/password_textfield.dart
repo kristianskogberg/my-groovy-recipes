@@ -7,6 +7,7 @@ class PasswordTextField extends StatelessWidget {
   final bool? autovalidate;
   final String? hintText;
   final String? Function(String?)? validator;
+  final bool? enabled;
 
   const PasswordTextField({
     super.key,
@@ -14,6 +15,7 @@ class PasswordTextField extends StatelessWidget {
     this.validator,
     this.autovalidate,
     this.hintText,
+    this.enabled,
   });
 
   @override
@@ -21,6 +23,7 @@ class PasswordTextField extends StatelessWidget {
     return RoundedTextField(
       hint: hintText ?? "Enter your password...",
       controller: controller,
+      enabled: enabled,
       validator: validator ??
           (password) {
             if (password == null || password.length < 6) {

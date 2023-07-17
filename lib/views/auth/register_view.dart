@@ -139,6 +139,7 @@ class _RegisterViewState extends State<RegisterView> {
                 EmailTextField(
                   controller: _emailController,
                   autovalidate: _autovalidate,
+                  enabled: _isLoading,
                 ),
                 const SizedBox(
                   height: defaultPadding,
@@ -148,6 +149,7 @@ class _RegisterViewState extends State<RegisterView> {
                 PasswordTextField(
                   controller: _passwordController,
                   autovalidate: _autovalidate,
+                  enabled: _isLoading,
                   validator: (password) {
                     // validate password
                     if (password == null || password.length < 6) {
@@ -166,6 +168,7 @@ class _RegisterViewState extends State<RegisterView> {
                   controller: _passwordConfirmController,
                   hintText: "Confirm your password...",
                   autovalidate: _autovalidate,
+                  enabled: _isLoading,
                   validator: (password) {
                     // validate password
                     if (password != _passwordController.text) {

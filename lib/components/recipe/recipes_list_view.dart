@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:my_groovy_recipes/components/misc/network_image_with_loading_animation.dart';
 import 'package:my_groovy_recipes/components/recipe/tag_list.dart';
 import 'package:my_groovy_recipes/components/titles/heading.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';

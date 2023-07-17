@@ -130,6 +130,7 @@ class _LoginViewState extends State<LoginView> {
                 EmailTextField(
                   controller: _emailController,
                   autovalidate: _autovalidate,
+                  enabled: _isLoading,
                 ),
                 const SizedBox(
                   height: defaultPadding,
@@ -139,6 +140,7 @@ class _LoginViewState extends State<LoginView> {
                 PasswordTextField(
                   controller: _passwordController,
                   autovalidate: _autovalidate,
+                  enabled: _isLoading,
                   validator: (password) {
                     // no need to validate password when logging in
                     return null;
