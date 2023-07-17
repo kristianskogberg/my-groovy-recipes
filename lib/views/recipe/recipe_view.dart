@@ -154,6 +154,12 @@ class _RecipeViewState extends State<RecipeView> {
                             height: 250,
                             width: double.infinity,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Padding(
+                                padding: const EdgeInsets.all(defaultPadding),
+                                child: Image.asset(imageNotFoundPath),
+                              );
+                            },
                           )),
               ),
             ),

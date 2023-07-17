@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:my_groovy_recipes/components/misc/network_image_with_loading_animation.dart';
 import 'package:my_groovy_recipes/components/recipe/tag_list.dart';
 import 'package:my_groovy_recipes/components/titles/heading.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';
@@ -84,21 +86,25 @@ class RecipesListView extends StatelessWidget {
                         SizedBox(
                             width: imageSize,
                             height: imageSize,
-                            child: Stack(
-                              children: <Widget>[
-                                const Center(
-                                    child: CircularProgressIndicator()),
-                                Center(
-                                  child: FadeInImage.memoryNetwork(
-                                    placeholder: kTransparentImage,
-                                    image: recipe.image,
-                                    width: imageSize,
-                                    height: imageSize,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            child: Stack(children: [
+                              Lottie.asset(
+                                  "assets/animations/image_loading.json"),
+                              FadeInImage.memoryNetwork(
+                                placeholder: kTransparentImage,
+                                image: recipe.image,
+                                width: imageSize,
+                                height: imageSize,
+                                fit: BoxFit.cover,
+                                imageErrorBuilder:
+                                    (context, error, stackTrace) {
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.all(defaultPadding),
+                                    child: Image.asset(imageNotFoundPath),
+                                  );
+                                },
+                              ),
+                            ]),
                           )),
 
                 // vertical separator line

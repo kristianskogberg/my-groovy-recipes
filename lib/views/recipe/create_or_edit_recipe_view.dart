@@ -235,6 +235,15 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                           height: 250,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Padding(
+                                              padding: const EdgeInsets.all(
+                                                  defaultPadding),
+                                              child: Image.asset(
+                                                  imageNotFoundPath),
+                                            );
+                                          },
                                         ),
                                       ),
                                     ],
@@ -671,36 +680,43 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
         },
       );
 
-      if (widget.recipe == null) {
-        // user is creating a new recipe, save it
+      try {
+        if (widget.recipe == null) {
+          // user is creating a new recipe, save it
 
-        await _recipeService.addNewRecipe(
-          ownerUserId: userId,
-          name: _name.text,
-          steps: _steps.text,
-          portions: _portions,
-          description: _description.text,
-          ingredients: _ingredients,
-          image: _image,
-          imageUrl: _imageUrl,
-          tags: _tags,
-        );
-      } else {
-        // user is updating a recipe, save changes
+          await _recipeService.addNewRecipe(
+            ownerUserId: userId,
+            name: _name.text,
+            steps: _steps.text,
+            portions: _portions,
+            description: _description.text,
+            ingredients: _ingredients,
+            image: _image,
+            imageUrl: _imageUrl,
+            tags: _tags,
+          );
+        } else {
+          // user is updating a recipe, save changes
 
-        await _recipeService.updateRecipe(
-          documentId: widget.recipe!.documentId,
-          ownerUserId: userId,
-          name: _name.text,
-          steps: _steps.text,
-          portions: _portions,
-          description: _description.text,
-          ingredients: _ingredients,
-          image: _image,
-          tags: _tags,
-          oldImageUrl: _oldImageUrl,
-          newImageUrl: _image == null ? _imageUrl : recipePlaceholderImagePath,
-        );
+          await _recipeService.updateRecipe(
+            documentId: widget.recipe!.documentId,
+            ownerUserId: userId,
+            name: _name.text,
+            steps: _steps.text,
+            portions: _portions,
+            description: _description.text,
+            ingredients: _ingredients,
+            image: _image,
+            tags: _tags,
+            oldImageUrl: _oldImageUrl,
+            newImageUrl:
+                _image == null ? _imageUrl : recipePlaceholderImagePath,
+          );
+        }
+      } catch (e) {
+        Logger().e(e);
+        // dismiss loading animation
+        if (context.mounted) Navigator.pop(context);
       }
 
       // dismiss loading animation

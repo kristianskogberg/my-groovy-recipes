@@ -1,4 +1,5 @@
 const recipePlaceholderImagePath = "assets/images/empty_plate.png";
+const imageNotFoundPath = "assets/images/image_not_found.png";
 const recipeImages = {
   "assets/images/cookie.png",
   "assets/images/cupcake.png",
@@ -15,4 +16,6 @@ const recipeImages = {
   "assets/images/waffles.png",
   "assets/images/drink.png",
   "assets/images/bread.png",
+  "assets/images/salad.png",
+  "assets/images/pie.png",
 };

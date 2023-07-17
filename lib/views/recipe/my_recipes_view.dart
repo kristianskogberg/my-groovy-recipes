@@ -147,106 +147,106 @@ class _MyRecipesViewState extends State<MyRecipesView> {
         ),
       ),
       // body
-      body: Container(
-        child: Column(
-          // physics: const BouncingScrollPhysics(),
-          children: [
-            Expanded(
-              child: StreamBuilder(
-                // listen to changes in the user's recipes and update UI if changes are found
-                stream: _recipesService.allRecipes(ownerUserId: userId),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        final allRecipes =
-                            snapshot.data as Iterable<CloudRecipe>;
+      body: Column(
+        // physics: const BouncingScrollPhysics(),
+        children: [
+          Expanded(
+            child: StreamBuilder(
+              // listen to changes in the user's recipes and update UI if changes are found
+              stream: _recipesService.allRecipes(ownerUserId: userId),
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  case ConnectionState.active:
+                    if (snapshot.hasData) {
+                      final allRecipes = snapshot.data as Iterable<CloudRecipe>;
 
-                        if (allRecipes.isEmpty) {
-                          // user has not created any recipes yet
-                          return const Padding(
-                            padding: EdgeInsets.all(defaultPadding),
-                            child: Text(
-                                "You don't have any recipes yet. Try adding a new recipe by clicking the plus-icon in the bottom-right corner!"),
-                          );
-                        }
-
-                        // filter recipes based on the search query
-                        _filteredRecipes = allRecipes.where((recipe) {
-                          final lowercaseQuery =
-                              _searchController.text.toLowerCase();
-
-                          // check if the recipe name contains the search query
-                          if (recipe.name
-                              .toLowerCase()
-                              .contains(lowercaseQuery)) {
-                            return true;
-                          }
-
-                          // check if any of the recipe tags contain the search query
-                          for (final tag in recipe.tags) {
-                            if (tag.toLowerCase().contains(lowercaseQuery)) {
-                              return true;
-                            }
-                          }
-
-                          return false;
-                        }).toList();
-
-                        if (_filteredRecipes.isEmpty) {
-                          // did not find any recipes with that search text
-                          return const Padding(
-                            padding: EdgeInsets.all(defaultPadding),
-                            child: Text("Oops! No matching recipes found."),
-                          );
-                        }
-
-                        // render all recipes
-                        return RecipesListView(
-                          recipes: _filteredRecipes,
-                          onTap: (recipe) {
-                            final recipeData = CloudRecipe(
-                              documentId: recipe.documentId,
-                              image: recipe.image,
-                              ownerUserId: recipe.ownerUserId,
-                              steps: recipe.steps,
-                              name: recipe.name,
-                              portions: recipe.portions,
-                              tags: recipe.tags,
-                              ingredients: recipe.ingredients,
-                              description: recipe.description,
-                            );
-
-                            // navigate the user to the RecipeView page
-
-                            // navigate to RecipeView with the tapped recipe data
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    RecipeView(recipe: recipeData),
-                              ),
-                            ).then((_) => _clearSearch());
-                          },
-                        );
-                      } else {
-                        return const Scaffold(
-                          body: Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                      if (allRecipes.isEmpty) {
+                        // user has not created any recipes yet
+                        return const Padding(
+                          padding: EdgeInsets.all(defaultPadding),
+                          child: Text(
+                              "You don't have any recipes yet. Try adding a new recipe by clicking the plus-icon in the bottom-right corner!"),
                         );
                       }
-                    default:
-                      return const Scaffold(
-                        body: Center(child: CircularProgressIndicator()),
+
+                      // filter recipes based on the search query
+                      _filteredRecipes = allRecipes.where((recipe) {
+                        final lowercaseQuery =
+                            _searchController.text.toLowerCase();
+
+                        // check if the recipe name contains the search query
+                        if (recipe.name
+                            .toLowerCase()
+                            .contains(lowercaseQuery)) {
+                          return true;
+                        }
+
+                        // check if any of the recipe tags contain the search query
+                        for (final tag in recipe.tags) {
+                          if (tag.toLowerCase().contains(lowercaseQuery)) {
+                            return true;
+                          }
+                        }
+
+                        return false;
+                      }).toList();
+
+                      if (_filteredRecipes.isEmpty) {
+                        // did not find any recipes with that search text
+                        return const Padding(
+                          padding: EdgeInsets.all(defaultPadding),
+                          child: Text("Oops! No matching recipes found."),
+                        );
+                      }
+
+                      // render all recipes
+                      return RecipesListView(
+                        recipes: _filteredRecipes,
+                        onTap: (recipe) {
+                          final recipeData = CloudRecipe(
+                            documentId: recipe.documentId,
+                            image: recipe.image,
+                            ownerUserId: recipe.ownerUserId,
+                            steps: recipe.steps,
+                            name: recipe.name,
+                            portions: recipe.portions,
+                            tags: recipe.tags,
+                            ingredients: recipe.ingredients,
+                            description: recipe.description,
+                          );
+
+                          // navigate the user to the RecipeView page
+
+                          // navigate to RecipeView with the tapped recipe data
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  RecipeView(recipe: recipeData),
+                            ),
+                          ).then((_) => _clearSearch());
+                        },
                       );
-                  }
-                },
-              ),
+                    } else {
+                      return const Scaffold(
+                        body: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                  default:
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                }
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

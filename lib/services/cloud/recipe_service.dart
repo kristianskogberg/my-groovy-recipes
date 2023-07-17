@@ -74,7 +74,8 @@ class RecipeService {
         ingredientsFieldName: ingredients.map((e) => e.toJson()).toList(),
         tagsFieldName: tags.toList(),
       });
-    } catch (e) {
+    } on FirebaseException catch (e) {
+      Logger().e(e);
       throw CouldNotUpdateRecipeException();
     }
   }

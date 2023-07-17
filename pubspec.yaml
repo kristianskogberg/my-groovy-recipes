@@ -47,6 +47,8 @@ dependencies:
   uuid: ^3.0.7
   file_picker: ^5.3.2
   email_validator: ^2.1.17
+  image_cropper: ^5.0.0
+  lottie: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -71,7 +73,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/animations/image_loading.json
+    - assets/images/image_not_found.png
     - assets/images/empty_plate.png
+    - assets/images/pie.png
+    - assets/images/salad.png
     - assets/images/cake.png
     - assets/images/chicken_and_rice.png
     - assets/images/cookie.png
