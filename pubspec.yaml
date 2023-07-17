@@ -88,12 +88,28 @@ flutter:
     - assets/images/jar.png
     - assets/images/pancakes.png
     - assets/images/pizza.png
+    - assets/images/pizza_v2.png
     - assets/images/rice.png
     - assets/images/spaghetti.png
     - assets/images/taco.png
     - assets/images/drink.png
     - assets/images/bread.png
     - assets/images/waffles.png
+    - assets/images/hamburger.png
+    - assets/images/meatballs.png
+    - assets/images/muffin.png
+    - assets/images/lasagna.png
+    - assets/images/tortilla.png
+    - assets/images/soup.png
+    - assets/images/bun.png
+    - assets/images/muffin_v2.png
+    - assets/images/cake_v2.png
+    - assets/images/cake_piece.png
+    - assets/images/cake_v3.png
+    - assets/images/roll.png
+    - assets/images/porridge.png
+    - assets/images/ramen.png
+    - assets/images/snack.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

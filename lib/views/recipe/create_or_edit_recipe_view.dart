@@ -631,12 +631,11 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                       children: _tags.map((tag) {
                         return Tag(
                           tag: tag,
-                          onTap: _isLoading
-                              ? null
-                              : () {
-                                  // remove a tag
-                                  _removeTag(tag);
-                                },
+                          onTap: () {
+                            if (_isLoading) return;
+                            // remove a tag
+                            _removeTag(tag);
+                          },
                         );
                       }).toList(),
                     ),
@@ -691,6 +690,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
         _isLoading = true;
       });
 
+      // try to save or update recipe
       try {
         if (widget.recipe == null) {
           // user is creating a new recipe, save it
