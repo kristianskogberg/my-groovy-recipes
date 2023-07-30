@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,6 +17,7 @@ import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
 import 'package:my_groovy_recipes/services/cloud/ingredient.dart';
 import 'package:my_groovy_recipes/services/cloud/recipe_service.dart';
 import 'package:my_groovy_recipes/utils/dialogs/discard_changes_dialog.dart';
+import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
 import 'package:my_groovy_recipes/utils/dialogs/image_selection_dialog.dart';
 
 const int noIngredientSelected = -1;
@@ -294,13 +296,17 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                                     ] else ...[
                                       // recipe contains an uploaded image from the user's device, display it
                                       Expanded(
-                                        child: Image.network(
-                                          _imageUrl,
+                                        child: CachedNetworkImage(
                                           height: 250,
                                           width: double.infinity,
                                           fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
+                                          imageUrl: _imageUrl,
+                                          placeholder: (context, url) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          },
+                                          errorWidget: (context, url, error) {
                                             return Padding(
                                               padding: const EdgeInsets.all(
                                                   defaultPadding),
@@ -724,18 +730,27 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                 _image == null ? _imageUrl : recipePlaceholderImagePath,
           );
         }
-      } catch (e) {
+      } on FirebaseAuthException catch (e) {
+        // firebase error
         Logger().e(e);
-        // dismiss loading animation
+        // dismiss loading
         setState(() {
           _isLoading = false;
         });
+        // show error message to the user
+        showErrorDialog(context,
+            "We encountered the following error while talking with our database: ${e.code.toString()}");
+      } catch (e) {
+        // generic error
+        Logger().e(e);
+        // dismiss loading
+        setState(() {
+          _isLoading = false;
+        });
+        // show error message to the user
+        showErrorDialog(context,
+            "We encountered an unknown error while talking with our database. Please try again later.");
       }
-
-      // dismiss loading animation
-      setState(() {
-        _isLoading = false;
-      });
 
       // navigate to MyRecipesView after saving the recipe successfully
       if (context.mounted) {

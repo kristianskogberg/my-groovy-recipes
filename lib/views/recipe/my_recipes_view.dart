@@ -80,28 +80,31 @@ class _MyRecipesViewState extends State<MyRecipesView> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: closeSearch ? defaultPadding : 0,
-        leading: closeSearch
-            ? null
-            : IconButton(
-                icon: const Icon(
-                  FontAwesomeIcons.arrowLeft,
-                  color: Colors.black,
-                ),
-                onPressed: () {
-                  _clearSearch();
-                },
-              ),
         title: closeSearch
             ? const Text("My Groovy Recipes")
-            : Padding(
-                padding: const EdgeInsets.only(right: defaultPadding),
-                child: SearchTextField(
-                  controller: _searchController,
-                  autofocus: true,
+            :
+            // show search bar and cancel button to exit from search
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SearchTextField(
+                        controller: _searchController,
+                        autofocus: true,
+                      ),
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          _clearSearch();
+                        },
+                        child: const Text("Cancel")),
+                  ],
                 ),
               ),
         actions: closeSearch
             ? [
+                // show search icon and sign out icon if the user is not searching anything
                 IconButton(
                     onPressed: _toggleSearch,
                     icon: const Icon(

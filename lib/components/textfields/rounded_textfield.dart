@@ -45,6 +45,7 @@ class RoundedTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      textAlignVertical: TextAlignVertical.center,
       enableSuggestions: false,
       inputFormatters: isNumber == true
           ? [
@@ -78,7 +79,10 @@ class RoundedTextField extends StatelessWidget {
         fillColor: Colors.white,
         hintStyle: const TextStyle(color: Colors.grey),
         isDense: icon == null ? false : true,
-        contentPadding: const EdgeInsets.all(16),
+        isCollapsed: true,
+        contentPadding: icon == null
+            ? const EdgeInsets.all(16)
+            : const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         prefixIcon: icon == null ? imageIcon : imageIcon ?? icon,
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(

@@ -78,7 +78,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       Logger().e(e);
       if (e.code == 'too-many-requests') {
         // show error dialog
-        showErrorDialog(context, "Too many requests! Try again in a minute.");
+        showErrorDialog(context,
+            "We're having a lot of requests at the moment. Please try again in a few minutes.");
       }
     }
   }

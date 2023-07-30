@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:my_groovy_recipes/components/recipe/tag_list.dart';
@@ -88,25 +89,20 @@ class RecipesListView extends StatelessWidget {
                         SizedBox(
                             width: imageSize,
                             height: imageSize,
-                            child: Stack(children: [
-                              Lottie.asset(
-                                  "assets/animations/image_loading.json"),
-                              FadeInImage.memoryNetwork(
-                                placeholder: kTransparentImage,
-                                image: recipe.image,
-                                width: imageSize,
-                                height: imageSize,
-                                fit: BoxFit.cover,
-                                imageErrorBuilder:
-                                    (context, error, stackTrace) {
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.all(defaultPadding),
-                                    child: Image.asset(imageNotFoundPath),
-                                  );
-                                },
-                              ),
-                            ]),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: recipe.image,
+                              placeholder: (context, url) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              },
+                              errorWidget: (context, url, error) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(defaultPadding),
+                                  child: Image.asset(imageNotFoundPath),
+                                );
+                              },
+                            ),
                           )),
 
                 // vertical separator line

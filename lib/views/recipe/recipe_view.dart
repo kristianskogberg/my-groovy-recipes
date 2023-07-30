@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_groovy_recipes/components/recipe/ingredients_list.dart';
@@ -133,32 +134,37 @@ class _RecipeViewState extends State<RecipeView> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(defaultBorderRadius),
                 child: Center(
-                    child: widget.recipe.image.contains("asset")
-                        ?
-                        // recipe image is one of the provided asset images
-                        Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Image.asset(widget.recipe.image,
-                                  height: 250,
-                                  width: double.infinity,
-                                  fit: BoxFit.contain),
-                            ),
-                          )
-                        :
-                        // recipe image is one of the uploaded images
-                        Image.network(
-                            widget.recipe.image,
-                            height: 250,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Padding(
-                                padding: const EdgeInsets.all(defaultPadding),
-                                child: Image.asset(imageNotFoundPath),
-                              );
-                            },
-                          )),
+                  child: widget.recipe.image.contains("asset")
+                      ?
+                      // recipe image is one of the provided asset images
+                      Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Image.asset(widget.recipe.image,
+                                height: 250,
+                                width: double.infinity,
+                                fit: BoxFit.contain),
+                          ),
+                        )
+                      :
+                      // recipe image is one of the uploaded images
+                      CachedNetworkImage(
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          imageUrl: widget.recipe.image,
+                          placeholder: (context, url) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          },
+                          errorWidget: (context, url, error) {
+                            return Padding(
+                              padding: const EdgeInsets.all(defaultPadding),
+                              child: Image.asset(imageNotFoundPath),
+                            );
+                          },
+                        ),
+                ),
               ),
             ),
             Column(

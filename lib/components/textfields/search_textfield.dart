@@ -25,7 +25,7 @@ class SearchTextField extends StatelessWidget {
           onPressed: controller.clear,
           icon: const Icon(
             FontAwesomeIcons.xmark,
-            color: Colors.grey,
+            color: Colors.black,
           ),
         ),
         icon: const Icon(
