@@ -129,6 +129,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
       _tags = widget.recipe!.tags;
       _imageUrl = widget.recipe!.image;
       _oldImageUrl = widget.recipe!.image;
+      _isLoading = false;
     } else {
       _checkRecipeCount();
     }
