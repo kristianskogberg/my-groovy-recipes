@@ -43,7 +43,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: _emailController.text);
 
-      if (context.mounted) {
+      if (mounted) {
         // dismiss the loading animation
         Navigator.pop(context);
 
@@ -51,21 +51,21 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         await showPasswordResetLinkSentDialog(context);
 
         // navigate back to login page
-        if (context.mounted) Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       }
     } on FirebaseAuthException catch (e) {
       // error occured
       Logger().e(e);
       // dismiss loading animation
-      if (context.mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
       // show error dialog
-      if (e.code == 'user-not-found') {
+      if (mounted && e.code == 'user-not-found') {
         showErrorDialog(
             context, "Oops! We did not find any user with that email");
-      } else if (e.code == 'invalid-email') {
+      } else if (mounted && e.code == 'invalid-email') {
         showErrorDialog(context, "Invalid email address");
       } else {
-        showErrorDialog(context, e.message.toString());
+        if (mounted) showErrorDialog(context, e.message.toString());
       }
     }
   }

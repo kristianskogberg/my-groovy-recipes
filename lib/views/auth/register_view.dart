@@ -88,13 +88,13 @@ class _RegisterViewState extends State<RegisterView> {
       setState(() {
         _isLoading = false;
       });
-      if (e.code == 'invalid-email') {
+      if (mounted && e.code == 'invalid-email') {
         // show error dialog
         showErrorDialog(context, "Invalid email");
-      } else if (e.code == "weak-password") {
+      } else if (mounted && e.code == "weak-password") {
         // show error dialog
         showErrorDialog(context, "Weak password");
-      } else if (e.code == 'email-already-in-use') {
+      } else if (mounted && e.code == 'email-already-in-use') {
         // show error dialog
         showErrorDialog(context, "Email is already in use");
       }

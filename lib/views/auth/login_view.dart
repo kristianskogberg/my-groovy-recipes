@@ -78,13 +78,13 @@ class _LoginViewState extends State<LoginView> {
       setState(() {
         _isLoading = false;
       });
-      if (e.code == 'user-not-found') {
+      if (mounted && e.code == 'user-not-found') {
         // show error dialog
         showErrorDialog(context, "Wrong credentials");
-      } else if (e.code == 'wrong-password') {
+      } else if (mounted && e.code == 'wrong-password') {
         // show error dialog
         showErrorDialog(context, "Wrong credentials");
-      } else if (e.code == 'invalid-email') {
+      } else if (mounted && e.code == 'invalid-email') {
         // show error dialog
         showErrorDialog(context, "Invalid email address");
       }

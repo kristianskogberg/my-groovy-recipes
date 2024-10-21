@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
+import 'package:my_groovy_recipes/services/create_user_document.dart';
 import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
 import 'package:my_groovy_recipes/views/recipe/my_recipes_view.dart';
 
@@ -55,8 +56,15 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       _isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
 
-    // cancel the timer if the user's email is verified
-    if (_isEmailVerified) _timer?.cancel();
+    if (_isEmailVerified) {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      String email = FirebaseAuth.instance.currentUser!.email!;
+
+      await createUserDocument(uid, email);
+
+      // cancel the timer if the user's email is verified
+      _timer?.cancel();
+    }
   }
 
   // send verification email to the user's email
@@ -76,7 +84,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       });
     } on FirebaseAuthException catch (e) {
       Logger().e(e);
-      if (e.code == 'too-many-requests') {
+      if (mounted && e.code == 'too-many-requests') {
         // show error dialog
         showErrorDialog(context,
             "We're having a lot of requests at the moment. Please try again in a few minutes.");

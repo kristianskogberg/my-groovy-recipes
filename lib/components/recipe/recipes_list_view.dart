@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:my_groovy_recipes/components/recipe/tag_list.dart';
 import 'package:my_groovy_recipes/components/titles/heading.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 const double imageSize = 120;
 

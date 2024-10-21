@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:my_groovy_recipes/components/recipe/ingredients_list.dart';
@@ -10,6 +11,7 @@ import 'package:my_groovy_recipes/constants/image_paths.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
 import 'package:my_groovy_recipes/services/cloud/recipe_service.dart';
+import 'package:my_groovy_recipes/services/update_user_recipe_count.dart';
 import 'package:my_groovy_recipes/utils/dialogs/delete_dialog.dart';
 import 'package:my_groovy_recipes/views/recipe/create_or_edit_recipe_view.dart';
 
@@ -87,6 +89,12 @@ class _RecipeViewState extends State<RecipeView> {
                     documentId: widget.recipe.documentId,
                     imageUrl: widget.recipe.image,
                   );
+
+                  final userId = FirebaseAuth.instance.currentUser?.uid;
+                  if (userId != null) {
+                    // update user's recipe count
+                    await updateRecipeCount(userId);
+                  }
 
                   if (context.mounted) {
                     Navigator.of(context)

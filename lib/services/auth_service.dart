@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:my_groovy_recipes/services/create_user_document.dart';
 
 class AuthService {
   // singleton pattern
@@ -28,7 +29,14 @@ class AuthService {
         accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
 
     // sign the user in
-    final user = await FirebaseAuth.instance.signInWithCredential(credential);
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    final user = userCredential.user;
+
+    if (user != null) {
+      // Create user document for keeping track of the user's recipe counts
+      await createUserDocument(user.uid, user.email);
+    }
 
     return user;
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,14 +12,17 @@ import 'package:my_groovy_recipes/components/recipe/portions_calculator.dart';
 import 'package:my_groovy_recipes/components/recipe/tag.dart';
 import 'package:my_groovy_recipes/components/textfields/rounded_textfield.dart';
 import 'package:my_groovy_recipes/components/titles/subheading.dart';
+import 'package:my_groovy_recipes/constants/config.dart';
 import 'package:my_groovy_recipes/constants/image_paths.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/services/cloud/cloud_recipe.dart';
 import 'package:my_groovy_recipes/services/cloud/ingredient.dart';
 import 'package:my_groovy_recipes/services/cloud/recipe_service.dart';
+import 'package:my_groovy_recipes/services/update_user_recipe_count.dart';
 import 'package:my_groovy_recipes/utils/dialogs/discard_changes_dialog.dart';
 import 'package:my_groovy_recipes/utils/dialogs/error_dialog.dart';
 import 'package:my_groovy_recipes/utils/dialogs/image_selection_dialog.dart';
+import 'package:my_groovy_recipes/views/recipe/recipe_limit_view.dart';
 
 const int noIngredientSelected = -1;
 
@@ -49,12 +53,11 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   final _formKey = GlobalKey<FormState>();
   String _ingredientErrorMessage = "";
   String _imageUrl = recipePlaceholderImagePath;
-  bool _isLoading = false;
+  bool _isLoading = true;
 
   late final String _oldImageUrl;
 
   int _selectedIngredientIndex = noIngredientSelected;
-
   int _portions = 1;
 
   void incrementPortions() {
@@ -79,6 +82,32 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
     });
   }
 
+  Future<void> _checkRecipeCount() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    // Get the user's document from Firestore
+    DocumentSnapshot userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (userSnapshot.exists) {
+      final userData = userSnapshot.data() as Map<String, dynamic>?;
+      if (userData != null) {
+        int recipeCount = userData['recipeCount'] ?? 0;
+
+        if (mounted && recipeCount >= Config.recipeLimit) {
+          // If the user has too many recipes, navigate to another page
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const RecipeLimitView()),
+          );
+        }
+      }
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     _recipeService = RecipeService();
@@ -100,6 +129,8 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
       _tags = widget.recipe!.tags;
       _imageUrl = widget.recipe!.image;
       _oldImageUrl = widget.recipe!.image;
+    } else {
+      _checkRecipeCount();
     }
     super.initState();
   }
@@ -227,447 +258,467 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
               },
             ),
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(defaultPadding),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              Container(
-                height: 250,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 2),
-                    borderRadius: const BorderRadius.all(
-                        Radius.circular(defaultBorderRadius))),
-                child:
-                    // recipe image
-                    Stack(
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView(
+                  padding: const EdgeInsets.all(defaultPadding),
+                  physics: const BouncingScrollPhysics(),
                   children: [
-                    _image != null
-                        ? ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius),
-                            child: Image.file(
-                              File(_image!.path),
-                              width: double.infinity,
-                              height: 250,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  height: 250,
-                                  color: Colors.white,
-                                  child: const Center(
-                                      child: CircularProgressIndicator()),
-                                ),
-                                Center(
-                                    child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (_imageUrl.contains("asset")) ...[
-                                      // recipe contains a provided asset image, display it
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(24),
-                                          child: Image.asset(_imageUrl,
-                                              height: 250,
-                                              width: double.infinity,
-                                              fit: BoxFit.contain),
-                                        ),
+                    Container(
+                      height: 250,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black, width: 2),
+                          borderRadius: const BorderRadius.all(
+                              Radius.circular(defaultBorderRadius))),
+                      child:
+                          // recipe image
+                          Stack(
+                        children: [
+                          _image != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                      defaultBorderRadius),
+                                  child: Image.file(
+                                    File(_image!.path),
+                                    width: double.infinity,
+                                    height: 250,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                      defaultBorderRadius),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 250,
+                                        color: Colors.white,
+                                        child: const Center(
+                                            child: CircularProgressIndicator()),
                                       ),
-                                    ] else if (_imageUrl ==
-                                        recipePlaceholderImagePath) ...[
-                                      // recipe does not contain any images, display placeholder
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(24),
-                                          child: Image.asset(
-                                            recipePlaceholderImagePath,
-                                            height: 250,
-                                            width: double.infinity,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ),
-                                    ] else ...[
-                                      // recipe contains an uploaded image from the user's device, display it
-                                      Expanded(
-                                        child: CachedNetworkImage(
-                                          height: 250,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          imageUrl: _imageUrl,
-                                          placeholder: (context, url) {
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          },
-                                          errorWidget: (context, url, error) {
-                                            return Padding(
-                                              padding: const EdgeInsets.all(
-                                                  defaultPadding),
-                                              child: Image.asset(
-                                                  imageNotFoundPath),
-                                            );
-                                          },
-                                        ),
-                                      ),
+                                      Center(
+                                          child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (_imageUrl.contains("asset")) ...[
+                                            // recipe contains a provided asset image, display it
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(24),
+                                                child: Image.asset(_imageUrl,
+                                                    height: 250,
+                                                    width: double.infinity,
+                                                    fit: BoxFit.contain),
+                                              ),
+                                            ),
+                                          ] else if (_imageUrl ==
+                                              recipePlaceholderImagePath) ...[
+                                            // recipe does not contain any images, display placeholder
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(24),
+                                                child: Image.asset(
+                                                  recipePlaceholderImagePath,
+                                                  height: 250,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
+                                            ),
+                                          ] else ...[
+                                            // recipe contains an uploaded image from the user's device, display it
+                                            Expanded(
+                                              child: CachedNetworkImage(
+                                                height: 250,
+                                                width: double.infinity,
+                                                fit: BoxFit.cover,
+                                                imageUrl: _imageUrl,
+                                                placeholder: (context, url) {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                },
+                                                errorWidget:
+                                                    (context, url, error) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            defaultPadding),
+                                                    child: Image.asset(
+                                                        imageNotFoundPath),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      )),
                                     ],
-                                  ],
-                                )),
+                                  ),
+                                ),
+
+                          // choose an image button
+                          Center(
+                            child: RoundedTextIconButton(
+                                icon: const Icon(
+                                  FontAwesomeIcons.image,
+                                  color: Colors.black,
+                                ),
+                                onPressed: chooseImage,
+                                text: "Choose an Image"),
+                          ),
+                          _image != null ||
+                                  _imageUrl != recipePlaceholderImagePath
+                              ?
+                              // remove image button
+                              Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      FontAwesomeIcons.xmark,
+                                      color: Colors.black,
+                                    ),
+                                    onPressed: _isLoading
+                                        ? null
+                                        : () {
+                                            // remove image and set it to the placeholder image
+                                            setState(() {
+                                              _image = null;
+                                              _imageUrl =
+                                                  recipePlaceholderImagePath;
+                                            });
+                                          },
+                                  ),
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            height: defaultPadding,
+                          ),
+
+                          // name subheading
+                          const SubheadingText(text: "Name*"),
+
+                          // recipe name text field
+                          RoundedTextField(
+                            hint: "Name of the recipe...",
+                            controller: _name,
+                            enabled: _isLoading,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Your recipe is missing a name!";
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(
+                            height: defaultPadding,
+                          ),
+
+                          // description subheading
+                          const SubheadingText(text: "Description"),
+
+                          // recipe description text field
+                          RoundedTextField(
+                            hint: "Description...",
+                            enabled: _isLoading,
+                            controller: _description,
+                            maxLines: 3,
+                          ),
+
+                          const SizedBox(
+                            height: defaultPadding,
+                          ),
+
+                          // portions subheading
+                          const SubheadingText(text: "Portions*"),
+
+                          const SizedBox(width: 8.0),
+
+                          // portions calculator
+                          PortionsCalculator(
+                              portions: _portions,
+                              onDecrementPressed: decrementPortions,
+                              onIncrementPressed: incrementPortions),
+
+                          const SizedBox(
+                            height: defaultPadding,
+                          ),
+
+                          // ingredients subheading
+                          const SubheadingText(text: "Ingredients*"),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(defaultBorderRadius),
+                              border: Border.all(
+                                  width: 2,
+                                  color: (_ingredients.isEmpty &&
+                                          _ingredientErrorMessage != "")
+                                      ? Colors.red
+                                      : Colors.black),
+                            ),
+                            child: Row(
+                              children: [
+                                // ingredient amount text field
+                                Expanded(
+                                  flex: 2,
+                                  child: RoundedTextField(
+                                    hint: "Amount",
+                                    fontSize: 14,
+                                    focusNode: _ingredientAmountFocusNode,
+                                    enabled: _isLoading,
+                                    controller: _ingredientAmount,
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(
+                                            defaultBorderRadius),
+                                        bottomLeft: Radius.circular(
+                                            defaultBorderRadius),
+                                        topRight: Radius.circular(0.0),
+                                        bottomRight: Radius.circular(0.0)),
+                                    isNumber: true,
+                                    borderWidth: 0.0,
+                                  ),
+                                ),
+                                // vertical separator line between amount and name
+                                SizedBox(
+                                  width: 2,
+                                  height: 48,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                        color: (_ingredients.isEmpty &&
+                                                _ingredientErrorMessage != "")
+                                            ? Colors.red
+                                            : Colors.black),
+                                  ),
+                                ),
+                                // ingredient name text field
+                                Expanded(
+                                  flex: 5,
+                                  child: RoundedTextField(
+                                    hint: "Name",
+                                    fontSize: 14,
+                                    controller: _ingredientName,
+                                    enabled: _isLoading,
+                                    borderRadius: BorderRadius.zero,
+                                    borderWidth: 0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                  height: 48,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                        color: (_ingredients.isEmpty &&
+                                                _ingredientErrorMessage != "")
+                                            ? Colors.red
+                                            : Colors.black),
+                                  ),
+                                ),
+                                // add ingredient button
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const CustomColors().yellow,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight:
+                                          Radius.circular(defaultBorderRadius),
+                                      bottomRight:
+                                          Radius.circular(defaultBorderRadius),
+                                    ),
+                                  ),
+                                  child: IconButton(
+                                      onPressed: _isLoading == true
+                                          ? null
+                                          : addOrUpdateIngredient,
+                                      icon: Icon(
+                                        _selectedIngredientIndex ==
+                                                noIngredientSelected
+                                            ? FontAwesomeIcons.plus
+                                            : FontAwesomeIcons.check,
+                                        color: Colors.black,
+                                      )),
+                                )
                               ],
                             ),
                           ),
-
-                    // choose an image button
-                    Center(
-                      child: RoundedTextIconButton(
-                          icon: const Icon(
-                            FontAwesomeIcons.image,
-                            color: Colors.black,
-                          ),
-                          onPressed: chooseImage,
-                          text: "Choose an Image"),
-                    ),
-                    _image != null || _imageUrl != recipePlaceholderImagePath
-                        ?
-                        // remove image button
-                        Positioned(
-                            top: 4,
-                            right: 4,
-                            child: IconButton(
-                              icon: const Icon(
-                                FontAwesomeIcons.xmark,
-                                color: Colors.black,
-                              ),
-                              onPressed: _isLoading
-                                  ? null
-                                  : () {
-                                      // remove image and set it to the placeholder image
-                                      setState(() {
-                                        _image = null;
-                                        _imageUrl = recipePlaceholderImagePath;
-                                      });
-                                    },
-                            ),
-                          )
-                        : Container(),
-                  ],
-                ),
-              ),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // name subheading
-                    const SubheadingText(text: "Name*"),
-
-                    // recipe name text field
-                    RoundedTextField(
-                      hint: "Name of the recipe...",
-                      controller: _name,
-                      enabled: _isLoading,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Your recipe is missing a name!";
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // description subheading
-                    const SubheadingText(text: "Description"),
-
-                    // recipe description text field
-                    RoundedTextField(
-                      hint: "Description...",
-                      enabled: _isLoading,
-                      controller: _description,
-                      maxLines: 3,
-                    ),
-
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // portions subheading
-                    const SubheadingText(text: "Portions*"),
-
-                    const SizedBox(width: 8.0),
-
-                    // portions calculator
-                    PortionsCalculator(
-                        portions: _portions,
-                        onDecrementPressed: decrementPortions,
-                        onIncrementPressed: incrementPortions),
-
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // ingredients subheading
-                    const SubheadingText(text: "Ingredients*"),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(defaultBorderRadius),
-                        border: Border.all(
-                            width: 2,
-                            color: (_ingredients.isEmpty &&
-                                    _ingredientErrorMessage != "")
-                                ? Colors.red
-                                : Colors.black),
-                      ),
-                      child: Row(
-                        children: [
-                          // ingredient amount text field
-                          Expanded(
-                            flex: 2,
-                            child: RoundedTextField(
-                              hint: "Amount",
-                              fontSize: 14,
-                              focusNode: _ingredientAmountFocusNode,
-                              enabled: _isLoading,
-                              controller: _ingredientAmount,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(defaultBorderRadius),
-                                  bottomLeft:
-                                      Radius.circular(defaultBorderRadius),
-                                  topRight: Radius.circular(0.0),
-                                  bottomRight: Radius.circular(0.0)),
-                              isNumber: true,
-                              borderWidth: 0.0,
-                            ),
-                          ),
-                          // vertical separator line between amount and name
-                          SizedBox(
-                            width: 2,
-                            height: 48,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                  color: (_ingredients.isEmpty &&
-                                          _ingredientErrorMessage != "")
-                                      ? Colors.red
-                                      : Colors.black),
-                            ),
-                          ),
-                          // ingredient name text field
-                          Expanded(
-                            flex: 5,
-                            child: RoundedTextField(
-                              hint: "Name",
-                              fontSize: 14,
-                              controller: _ingredientName,
-                              enabled: _isLoading,
-                              borderRadius: BorderRadius.zero,
-                              borderWidth: 0,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 2,
-                            height: 48,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                  color: (_ingredients.isEmpty &&
-                                          _ingredientErrorMessage != "")
-                                      ? Colors.red
-                                      : Colors.black),
-                            ),
-                          ),
-                          // add ingredient button
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: const CustomColors().yellow,
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(defaultBorderRadius),
-                                bottomRight:
-                                    Radius.circular(defaultBorderRadius),
+                          // possible ingredient error message
+                          if (_ingredientErrorMessage != "" ||
+                              _ingredients.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 8, bottom: 8, right: 16, left: 16),
+                              child: Text(
+                                _ingredientErrorMessage,
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 14),
                               ),
                             ),
-                            child: IconButton(
-                                onPressed: _isLoading == true
-                                    ? null
-                                    : addOrUpdateIngredient,
-                                icon: Icon(
-                                  _selectedIngredientIndex ==
-                                          noIngredientSelected
-                                      ? FontAwesomeIcons.plus
-                                      : FontAwesomeIcons.check,
-                                  color: Colors.black,
-                                )),
-                          )
-                        ],
-                      ),
-                    ),
-                    // possible ingredient error message
-                    if (_ingredientErrorMessage != "" || _ingredients.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 8, bottom: 8, right: 16, left: 16),
-                        child: Text(
-                          _ingredientErrorMessage,
-                          style:
-                              const TextStyle(color: Colors.red, fontSize: 14),
-                        ),
-                      ),
 
-                    // list of added ingredients
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _ingredients.length,
-                      itemBuilder: (context, index) => getIngredientRow(index),
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(
-                          width: double.infinity,
-                          height: 1,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.black),
+                          // list of added ingredients
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _ingredients.length,
+                            itemBuilder: (context, index) =>
+                                getIngredientRow(index),
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                width: double.infinity,
+                                height: 1,
+                                child: DecoratedBox(
+                                  decoration:
+                                      BoxDecoration(color: Colors.black),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
 
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // steps subheading
-                    const SubheadingText(text: "Steps*"),
-
-                    // steps text field
-                    RoundedTextField(
-                      hint: "How to prepare the recipe...",
-                      enabled: _isLoading,
-                      controller: _steps,
-                      maxLines: 8,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Your recipe is missing steps on how to produce it!';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(
-                      height: defaultPadding,
-                    ),
-
-                    // tags text field
-                    const SubheadingText(text: "Tags"),
-
-                    // recipe's tags section
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(defaultBorderRadius),
-                        border: Border.all(width: 2.0, color: Colors.black),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: RoundedTextField(
-                              hint: "Tag name...",
-                              enabled: _isLoading,
-                              controller: _tagName,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(defaultBorderRadius),
-                                  bottomLeft:
-                                      Radius.circular(defaultBorderRadius),
-                                  topRight: Radius.circular(0.0),
-                                  bottomRight: Radius.circular(0.0)),
-                              borderWidth: 0.0,
-                            ),
-                          ),
                           const SizedBox(
-                            width: 2,
-                            height: 48,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(color: Colors.black),
+                            height: defaultPadding,
+                          ),
+
+                          // steps subheading
+                          const SubheadingText(text: "Steps*"),
+
+                          // steps text field
+                          RoundedTextField(
+                            hint: "How to prepare the recipe...",
+                            enabled: _isLoading,
+                            controller: _steps,
+                            maxLines: 8,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Your recipe is missing steps on how to produce it!';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(
+                            height: defaultPadding,
+                          ),
+
+                          // tags text field
+                          const SubheadingText(text: "Tags"),
+
+                          // recipe's tags section
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(defaultBorderRadius),
+                              border:
+                                  Border.all(width: 2.0, color: Colors.black),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: RoundedTextField(
+                                    hint: "Tag name...",
+                                    enabled: _isLoading,
+                                    controller: _tagName,
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(
+                                            defaultBorderRadius),
+                                        bottomLeft: Radius.circular(
+                                            defaultBorderRadius),
+                                        topRight: Radius.circular(0.0),
+                                        bottomRight: Radius.circular(0.0)),
+                                    borderWidth: 0.0,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 2,
+                                  height: 48,
+                                  child: DecoratedBox(
+                                    decoration:
+                                        BoxDecoration(color: Colors.black),
+                                  ),
+                                ),
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const CustomColors().yellow,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight:
+                                          Radius.circular(defaultBorderRadius),
+                                      bottomRight:
+                                          Radius.circular(defaultBorderRadius),
+                                    ),
+                                  ),
+                                  child: IconButton(
+                                      onPressed: _isLoading
+                                          ? null
+                                          : () {
+                                              // add a new tag
+                                              String tag = _tagName.text;
+                                              _addTag(tag);
+                                              _tagName.clear();
+                                            },
+                                      icon: const Icon(
+                                        FontAwesomeIcons.plus,
+                                        color: Colors.black,
+                                      )),
+                                )
+                              ],
                             ),
                           ),
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: const CustomColors().yellow,
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(defaultBorderRadius),
-                                bottomRight:
-                                    Radius.circular(defaultBorderRadius),
-                              ),
-                            ),
-                            child: IconButton(
-                                onPressed: _isLoading
-                                    ? null
-                                    : () {
-                                        // add a new tag
-                                        String tag = _tagName.text;
-                                        _addTag(tag);
-                                        _tagName.clear();
-                                      },
-                                icon: const Icon(
-                                  FontAwesomeIcons.plus,
-                                  color: Colors.black,
-                                )),
-                          )
+                          const SizedBox(height: defaultPadding),
+
+                          // tags
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 16,
+                            children: _tags.map((tag) {
+                              return Tag(
+                                tag: tag,
+                                onTap: () {
+                                  if (_isLoading) return;
+                                  // remove a tag
+                                  _removeTag(tag);
+                                },
+                              );
+                            }).toList(),
+                          ),
+
+                          const SizedBox(height: largePadding),
+
+                          // save button
+                          FullWidthTextButton(
+                              isLoading: _isLoading,
+                              onPressed: () async {
+                                // dismiss keyboard
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                // validate inputs
+                                _submitForm();
+                              },
+                              text: widget.recipe == null
+                                  ? "Save Recipe"
+                                  : "Save Changes"),
+                          const SizedBox(height: largePadding),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: defaultPadding),
-
-                    // tags
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 16,
-                      children: _tags.map((tag) {
-                        return Tag(
-                          tag: tag,
-                          onTap: () {
-                            if (_isLoading) return;
-                            // remove a tag
-                            _removeTag(tag);
-                          },
-                        );
-                      }).toList(),
-                    ),
-
-                    const SizedBox(height: largePadding),
-
-                    // save button
-                    FullWidthTextButton(
-                        isLoading: _isLoading,
-                        onPressed: () async {
-                          // dismiss keyboard
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          // validate inputs
-                          _submitForm();
-                        },
-                        text: widget.recipe == null
-                            ? "Save Recipe"
-                            : "Save Changes"),
-                    const SizedBox(height: largePadding),
+                    )
                   ],
                 ),
-              )
-            ],
-          ),
         ),
       ],
     );
@@ -714,6 +765,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
             imageUrl: _imageUrl,
             tags: _tags,
           );
+
+          // update user's recipe count
+          await updateRecipeCount(userId);
         } else {
           // user is updating a recipe, save changes
 
@@ -740,8 +794,10 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
           _isLoading = false;
         });
         // show error message to the user
-        showErrorDialog(context,
-            "We encountered the following error while talking with our database: ${e.code.toString()}");
+        if (mounted) {
+          showErrorDialog(context,
+              "We encountered the following error while talking with our database: ${e.code.toString()}");
+        }
       } catch (e) {
         // generic error
         Logger().e(e);
@@ -750,12 +806,14 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
           _isLoading = false;
         });
         // show error message to the user
-        showErrorDialog(context,
-            "We encountered an unknown error while talking with our database. Please try again later.");
+        if (mounted) {
+          showErrorDialog(context,
+              "We encountered an unknown error while talking with our database. Please try again later.");
+        }
       }
 
       // navigate to MyRecipesView after saving the recipe successfully
-      if (context.mounted) {
+      if (mounted) {
         Navigator.of(context)
             .popUntil((myRecipesRoute) => myRecipesRoute.isFirst);
       }
