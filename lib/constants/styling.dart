@@ -10,6 +10,7 @@ class CustomColors {
   final darkBrown = const Color(0xff3C2011);
   final lightOrange = const Color(0xfffa8d52);
   final beige = const Color(0xffFDF3E6);
+  //final beige = const Color(0xfffacf87);
 
   const CustomColors();
 }
