@@ -13,28 +13,32 @@ class _CheckboxWidgetState extends State<CheckboxWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color getColor(Set<MaterialState> states) {
-      const Set<MaterialState> interactiveStates = <MaterialState>{
-        MaterialState.pressed,
-        MaterialState.hovered,
-        MaterialState.focused,
+    Color getColor(Set<WidgetState> states) {
+      const Set<WidgetState> interactiveStates = <WidgetState>{
+        WidgetState.pressed,
+        WidgetState.hovered,
+        WidgetState.focused,
       };
       if (states.any(interactiveStates.contains)) {
         return const CustomColors().yellow;
       }
-      return Colors.black;
+      return Colors.white;
     }
 
     return Checkbox(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      checkColor: Colors.white,
-      fillColor: MaterialStateProperty.resolveWith(getColor),
+      checkColor: Colors.black,
+      fillColor: WidgetStateProperty.resolveWith(getColor),
       value: isChecked,
       onChanged: (bool? value) {
         setState(() {
           isChecked = value!;
         });
       },
+      side: const BorderSide(
+        color: Colors.black,
+        width: 1,
+      ),
     );
   }
 }

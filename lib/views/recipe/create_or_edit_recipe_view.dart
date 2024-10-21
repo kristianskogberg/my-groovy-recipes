@@ -438,6 +438,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             flex: 2,
                             child: RoundedTextField(
                               hint: "Amount",
+                              fontSize: 14,
                               focusNode: _ingredientAmountFocusNode,
                               enabled: _isLoading,
                               controller: _ingredientAmount,
@@ -467,7 +468,8 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                           Expanded(
                             flex: 5,
                             child: RoundedTextField(
-                              hint: "Name...",
+                              hint: "Name",
+                              fontSize: 14,
                               controller: _ingredientName,
                               enabled: _isLoading,
                               borderRadius: BorderRadius.zero,
@@ -550,7 +552,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
 
                     // steps text field
                     RoundedTextField(
-                      hint: "Steps...",
+                      hint: "How to prepare the recipe...",
                       enabled: _isLoading,
                       controller: _steps,
                       maxLines: 8,

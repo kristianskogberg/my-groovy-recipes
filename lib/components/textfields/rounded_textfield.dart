@@ -20,27 +20,28 @@ class RoundedTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final IconButton? suffixIcon;
+  final num? fontSize;
 
-  const RoundedTextField({
-    super.key,
-    required this.hint,
-    required this.controller,
-    this.borderWidth,
-    this.isPassword,
-    this.focusNode,
-    this.autovalidateMode,
-    this.icon,
-    this.enabled,
-    this.imageIcon,
-    this.maxLines,
-    this.isEmail,
-    this.isNumber,
-    this.autofocus,
-    this.borderRadius,
-    this.validator,
-    this.onChanged,
-    this.suffixIcon,
-  });
+  const RoundedTextField(
+      {super.key,
+      required this.hint,
+      required this.controller,
+      this.borderWidth,
+      this.isPassword,
+      this.focusNode,
+      this.autovalidateMode,
+      this.icon,
+      this.enabled,
+      this.imageIcon,
+      this.maxLines,
+      this.isEmail,
+      this.isNumber,
+      this.autofocus,
+      this.borderRadius,
+      this.validator,
+      this.onChanged,
+      this.suffixIcon,
+      this.fontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,7 @@ class RoundedTextField extends StatelessWidget {
       autofocus: autofocus ?? false,
       focusNode: focusNode,
       maxLines: maxLines ?? 1,
-      style: const TextStyle(height: 1),
+      style: TextStyle(height: 1, fontSize: fontSize?.toDouble() ?? 16),
       maxLength: 500,
       enabled: enabled == true ? false : true,
       autocorrect: false,
