@@ -49,13 +49,17 @@ dependencies:
   email_validator: ^2.1.17
   image_cropper: ^5.0.0
   lottie: ^2.4.0
-  flutter_native_splash: ^2.3.1
+  flutter_native_splash: ^2.4.2
 
 flutter_native_splash:
   android: true
   ios: true
-  color: "#ffffff"
-  image: "assets/logo_foreground.png"
+  color: "#FDF3E6"
+  image: "assets/logo600px.png"
+
+  android_12:
+    color: "#FDF3E6"
+    image: "assets/logo_android12.png"
 
 dev_dependencies:
   flutter_test:
