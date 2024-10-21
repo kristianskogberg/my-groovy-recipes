@@ -16,41 +16,41 @@ class VerifyEmailView extends StatefulWidget {
   State<VerifyEmailView> createState() => _VerifyEmailViewState();
 }
 
-class _VerifyEmailViewState extends State<VerifyEmailView> {
+class _VerifyEmailViewState extends State<VerifyEmailView>
+    with WidgetsBindingObserver {
   bool _isEmailVerified = false;
   bool _canResendEmailVerification = false;
-  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // Add observer
 
-    // get and set the user's email status
+    // Get and set the user's email status
     _isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
 
-    // if the user's email is not verified, send a verification email
+    // If the user's email is not verified, send a verification email
     if (!_isEmailVerified) {
       sendVerificationEmail();
-
-      // check if the user has verified his or hers email every 3 seconds
-      // in order to update UI accordingly without the user having to login
-      // again after having confirmed his or hers email
-      _timer = Timer.periodic(
-        const Duration(seconds: 3),
-        (_) => checkIfEmailIsVerified(),
-      );
     }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this); // Remove observer
     super.dispose();
   }
 
-  // get the status of the user's email (verified or not verified)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkIfEmailIsVerified(); // Check if email is verified when app resumes
+    }
+  }
+
+  // Get the status of the user's email (verified or not verified)
   Future checkIfEmailIsVerified() async {
-    // refresh the user to get the latest status
+    // Refresh the user to get the latest status
     await FirebaseAuth.instance.currentUser!.reload();
     setState(() {
       _isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
@@ -61,20 +61,16 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       String email = FirebaseAuth.instance.currentUser!.email!;
 
       await createUserDocument(uid, email);
-
-      // cancel the timer if the user's email is verified
-      _timer?.cancel();
     }
   }
 
-  // send verification email to the user's email
+  // Send verification email to the user's email
   Future sendVerificationEmail() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
 
-      // allow the user to manually resend a new email verification once every 5 seconds
-      // to prevent unneccessary requests to firebase
+      // Allow the user to manually resend a new email verification once every 5 seconds
       setState(() {
         _canResendEmailVerification = false;
       });
@@ -85,25 +81,21 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
     } on FirebaseAuthException catch (e) {
       Logger().e(e);
       if (mounted && e.code == 'too-many-requests') {
-        // show error dialog
+        // Show error dialog
         showErrorDialog(context,
             "We're having a lot of requests at the moment. Please try again in a few minutes.");
       }
     }
   }
 
-  // sign out the user
-  Future signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isEmailVerified) {
-      // if user has already verified his or hers email, redirect to MyRecipesView
+      // If user has already verified their email, redirect to MyRecipesView
       return const MyRecipesView();
     }
-    // user has not verified his or hers email
+
+    // User has not verified their email
     return Scaffold(
       appBar: AppBar(title: const Text("Verify Email")),
       body: Padding(
@@ -129,12 +121,14 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               const SizedBox(
                 height: largePadding,
               ),
-              TextButton(
+              // Show resend button if not verified
+              if (!_isEmailVerified)
+                TextButton(
                   onPressed: _canResendEmailVerification
                       ? sendVerificationEmail
                       : null,
-                  child: const Text("Send verificiation email again")),
-              TextButton(onPressed: signOut, child: const Text("Restart"))
+                  child: const Text("Send verification email again"),
+                ),
             ],
           ),
         ),
