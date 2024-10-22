@@ -21,7 +21,7 @@ class HeadingText extends StatelessWidget {
         maxLines: maxLines ?? 2,
         style: const TextStyle(
           overflow: TextOverflow.ellipsis,
-          fontSize: 24.0,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
