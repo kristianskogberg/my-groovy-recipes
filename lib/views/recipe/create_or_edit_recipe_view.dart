@@ -53,7 +53,9 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
   final _formKey = GlobalKey<FormState>();
   String _ingredientErrorMessage = "";
   String _imageUrl = recipePlaceholderImagePath;
-  bool _isLoading = true;
+  bool _isLoading = false; // creating or editign recipe
+  bool _isCheckingRecipeLimit =
+      true; // checking if user has reached max number of recipes
 
   late final String _oldImageUrl;
 
@@ -104,7 +106,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
     }
 
     setState(() {
-      _isLoading = false;
+      _isCheckingRecipeLimit = false;
     });
   }
 
@@ -129,7 +131,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
       _tags = widget.recipe!.tags;
       _imageUrl = widget.recipe!.image;
       _oldImageUrl = widget.recipe!.image;
-      _isLoading = false;
+      _isCheckingRecipeLimit = false;
     } else {
       _checkRecipeCount();
     }
@@ -259,7 +261,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
               },
             ),
           ),
-          body: _isLoading
+          body: _isCheckingRecipeLimit
               ? const Center(
                   child: CircularProgressIndicator(),
                 )
