@@ -48,22 +48,30 @@ class GoogleSignInButton extends StatelessWidget {
               onPressed: isLoading == true ? null : onPressed,
               child: isLoading == false
                   ?
-                  // display continue with google
-                  const Row(
+                  // Display "Continue with Google" with global font settings
+                  Row(
                       children: [
-                        Icon(
+                        const Icon(
                           FontAwesomeIcons.google,
                           color: Colors.black,
                         ),
-                        SizedBox(width: 8),
-                        Text("Continue with Google"),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Continue with Google",
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
                       ],
                     )
-                  : // display loading indicator if is loading
+                  : // Display loading indicator if it is loading
                   const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator()),
+                      child: CircularProgressIndicator(),
+                    ),
             ),
           ),
         ),

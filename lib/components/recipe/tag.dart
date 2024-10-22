@@ -27,7 +27,12 @@ class Tag extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(tag),
+            Text(
+              tag,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.black,
+                  ),
+            ),
             if (onTap != null)
               // display remove (xmark) icon only if the onTap parameter exists
               InkWell(

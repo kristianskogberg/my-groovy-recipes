@@ -61,10 +61,10 @@ class FullWidthTextButton extends StatelessWidget {
                   ],
                   Text(
                     text,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ],
               ),

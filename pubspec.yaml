@@ -50,6 +50,7 @@ dependencies:
   image_cropper: ^5.0.0
   lottie: ^2.4.0
   flutter_native_splash: ^2.4.2
+  google_fonts: ^6.2.1
 
 flutter_native_splash:
   android: true

@@ -228,7 +228,11 @@ class _LoginViewState extends State<LoginView> {
                                     const ForgotPasswordView(),
                               ));
                             },
-                      child: const Text("Forgot your password?")),
+                      child: Text(
+                        "Forgot your password?",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                      )),
                 ),
               ],
             ),

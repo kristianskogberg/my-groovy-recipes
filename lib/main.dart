@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:my_groovy_recipes/constants/routes.dart';
 import 'package:my_groovy_recipes/constants/styling.dart';
 import 'package:my_groovy_recipes/views/auth/auth_view.dart';
@@ -39,12 +40,7 @@ class MyApp extends StatelessWidget {
             shape:
                 const Border(bottom: BorderSide(color: Colors.black, width: 2)),
           ),
-          textTheme: Theme.of(context).textTheme.copyWith(
-                titleLarge: const TextStyle(
-                  // for example app bar title style
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
+          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
           dialogTheme: const DialogTheme(
             elevation: 0,
           ),
