@@ -449,7 +449,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                           ),
 
                           // portions subheading
-                          const SubheadingText(text: "Portions*"),
+                          const SubheadingText(text: "Portions"),
 
                           const SizedBox(width: 8.0),
 
@@ -598,7 +598,7 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                           ),
 
                           // steps subheading
-                          const SubheadingText(text: "Steps*"),
+                          const SubheadingText(text: "Steps"),
 
                           // steps text field
                           RoundedTextField(
@@ -606,12 +606,6 @@ class _CreateOrEditRecipeViewState extends State<CreateOrEditRecipeView> {
                             enabled: _isLoading,
                             controller: _steps,
                             maxLines: 8,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Your recipe is missing steps on how to produce it!';
-                              }
-                              return null;
-                            },
                           ),
 
                           const SizedBox(
